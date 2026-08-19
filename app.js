@@ -70,6 +70,7 @@ const TRANSLATIONS = {
         step4_title: "4. Recruiter Call Readiness",
         step4_desc: "Recruiter called unexpectedly? Open the app in 2 seconds to know the product, role & key talking points!",
         load_demo_btn: "See How It Works (Load Demo)",
+        guide_btn: "How It Works",
         demo_banner_title: "Demo Mode Active (Sample Data)",
         demo_banner_desc: "Exploring sample CVs, an active application, and an AI prep guide. Click the job below to view details, or clear demo data anytime.",
         clear_demo_btn: "Clear Demo Data",
@@ -240,6 +241,7 @@ const TRANSLATIONS = {
         step4_title: "4. מעקב ושליטה בשיחת טלפון",
         step4_desc: "מקבלים טלפון מצוות הגיוס? פותחים מיד את המערכת ויודעים בדיוק: מה המוצר של החברה, מה התפקיד ומה להדגיש – בלי להתרוצץ ולחפש מודעות שנמחקו מהרשת!",
         load_demo_btn: "רוצה לראות איך זה עובד? (טען נתוני דוגמה)",
+        guide_btn: "איך זה עובד?",
         demo_banner_title: "🔎 מצב הדגמה פעיל (נתוני דוגמה)",
         demo_banner_desc: "נטענו נתוני דוגמה: 2 מסמכים, מועמדות פעילה וסינתזת הכנה לראיון ב-AI. לחץ על המשרה בטבלה לצפייה, או נקה את הדמו בכל רגע.",
         clear_demo_btn: "נקה נתוני דוגמה והתחל לעבוד",
@@ -991,6 +993,37 @@ function clearSampleData() {
 }
 
 // Hook Demo and Onboarding Buttons
+const openGuideBtn = document.getElementById('openGuideBtn');
+const guideModal = document.getElementById('guideModal');
+const closeGuideModalBtn = document.getElementById('closeGuideModalBtn');
+const closeGuideModalActionBtn = document.getElementById('closeGuideModalActionBtn');
+const modalLoadDemoBtn = document.getElementById('modalLoadDemoBtn');
+
+if (openGuideBtn) {
+    openGuideBtn.addEventListener('click', () => {
+        if (guideModal) guideModal.classList.add('active');
+    });
+}
+
+if (closeGuideModalBtn) {
+    closeGuideModalBtn.addEventListener('click', () => {
+        if (guideModal) guideModal.classList.remove('active');
+    });
+}
+
+if (closeGuideModalActionBtn) {
+    closeGuideModalActionBtn.addEventListener('click', () => {
+        if (guideModal) guideModal.classList.remove('active');
+    });
+}
+
+if (modalLoadDemoBtn) {
+    modalLoadDemoBtn.addEventListener('click', () => {
+        if (guideModal) guideModal.classList.remove('active');
+        loadSampleData();
+    });
+}
+
 if (loadDemoBtn) {
     loadDemoBtn.addEventListener('click', () => {
         loadSampleData();

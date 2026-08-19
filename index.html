@@ -32,6 +32,9 @@
                 <p data-i18n="app_tagline">Application pipeline & interview preparation hub.</p>
             </div>
             <div class="header-actions">
+                <button id="openGuideBtn" class="btn-secondary" style="padding: 0.4rem 0.75rem; font-size: 0.85rem; display: flex; align-items: center; gap: 0.35rem;" title="How It Works / מדריך שימוש">
+                    <ion-icon name="help-circle-outline"></ion-icon> <span data-i18n="guide_btn">איך זה עובד?</span>
+                </button>
                 <button id="langToggleBtn" class="btn-secondary lang-toggle-btn" title="Switch Language / החלף שפה">
                     <ion-icon name="globe-outline"></ion-icon>
                     <span id="langBtnText">עברית</span>
@@ -540,6 +543,55 @@
                     <button type="submit" class="btn-primary" data-i18n="save_document_btn">Save Document</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- How It Works / Onboarding Guide Modal -->
+    <div id="guideModal" class="modal-overlay">
+        <div class="modal-content glass-panel" style="max-width: 840px;">
+            <div class="modal-header">
+                <h2><ion-icon name="rocket-outline" style="color: var(--primary);"></ion-icon> <span data-i18n="how_it_works_title">How It Works in 4 Simple Steps</span></h2>
+                <button class="close-btn" id="closeGuideModalBtn"><ion-icon name="close-outline"></ion-icon></button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 0.92rem; color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.5;" data-i18n="empty_desc">
+                    Manage your applications, tailored CVs, and AI interview prep guides all in one secure workspace.
+                </p>
+                <div class="onboarding-steps-grid">
+                    <div class="step-card glass-panel">
+                        <div class="step-badge">1</div>
+                        <div class="step-icon"><ion-icon name="document-text-outline"></ion-icon></div>
+                        <h5 data-i18n="step1_title">1. Document Versions & CVs</h5>
+                        <p data-i18n="step1_desc">Store tailored CVs, transcripts & cover letters with fast Drive links and version changelogs.</p>
+                    </div>
+                    <div class="step-card glass-panel">
+                        <div class="step-badge">2</div>
+                        <div class="step-icon"><ion-icon name="sparkles-outline"></ion-icon></div>
+                        <h5 data-i18n="step2_title">2. Paste Job & AI Match</h5>
+                        <p data-i18n="step2_desc">Paste raw job descriptions to extract company details and compute an instant CV match score.</p>
+                    </div>
+                    <div class="step-card glass-panel">
+                        <div class="step-badge">3</div>
+                        <div class="step-icon"><ion-icon name="color-wand-outline"></ion-icon></div>
+                        <h5 data-i18n="step3_title">3. Targeted Interview Prep</h5>
+                        <p data-i18n="step3_desc">Receive MUST PREPARE technical topics, GOOD TO KNOW bonus points, and tailored pitch strategies.</p>
+                    </div>
+                    <div class="step-card glass-panel highlight-step">
+                        <div class="step-badge">4</div>
+                        <div class="step-icon"><ion-icon name="call-outline"></ion-icon></div>
+                        <h5 data-i18n="step4_title">4. Recruiter Call Readiness</h5>
+                        <p data-i18n="step4_desc">Recruiter called unexpectedly? Open the app in 2 seconds to know the product, role & key talking points!</p>
+                    </div>
+                </div>
+                <div class="empty-state-actions" style="margin-top: 2rem;">
+                    <button type="button" id="modalLoadDemoBtn" class="btn-primary load-demo-btn">
+                        <ion-icon name="sparkles"></ion-icon> <span data-i18n="load_demo_btn">See How It Works (Load Demo)</span>
+                    </button>
+                    <button type="button" id="closeGuideModalActionBtn" class="btn-secondary">
+                        <span data-i18n="cancel_btn">Close</span>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
