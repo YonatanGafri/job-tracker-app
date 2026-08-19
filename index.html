@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Tracker Cloud</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <!-- Supabase JS Client for Real-Time Cross-Device Sync -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- PDF.js for client-side CV parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+    <!-- Ionicons for beautiful icons -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <!-- Vercel Web Analytics -->
+    <script defer src="/_vercel/insights/script.js"></script>
+    <script>
+        window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="bsd-text">בס"ד</div>
+        <header class="glass-panel main-header">
+            <div class="header-content">
+                <h1>
+                    <ion-icon name="briefcase-outline"></ion-icon>
+                    <span data-i18n="app_title">Job Tracker</span>
+                </h1>
+                <p data-i18n="app_tagline">Application pipeline & interview preparation hub.</p>
+            </div>
+            <div class="header-actions">
+                <button id="langToggleBtn" class="btn-secondary lang-toggle-btn" title="Switch Language / החלף שפה">
+                    <ion-icon name="globe-outline"></ion-icon>
+                    <span id="langBtnText">עברית</span>
+                </button>
+                <button id="openSettingsBtn" class="btn-secondary" style="padding: 0.4rem 0.6rem; font-size: 1.2rem;" title="Settings">
+                    <ion-icon name="settings-outline"></ion-icon>
+                </button>
+                <div id="userBadge" class="user-badge" style="display: none;">
+                    <div class="user-badge-pill">
+                        <ion-icon name="person-circle-outline"></ion-icon>
+                        <span id="userEmail"></span>
+                    </div>
+                    <button id="logoutBtn" class="btn-secondary" style="color: #dc2626; border-color: #fecaca; padding: 0.4rem 0.75rem; font-size: 0.8rem;" title="Log Out">
+                        <ion-icon name="log-out-outline"></ion-icon> <span data-i18n="logout">Log Out</span>
+                    </button>
+                </div>
+                <button class="btn-primary" id="openModalBtn">
+                    <ion-icon name="add-outline"></ion-icon> <span data-i18n="new_application">New Application</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Settings Modal -->
+        <div id="settingsModal" class="modal-overlay">
+            <div class="modal-content glass-panel" style="max-width: 520px;">
+                <div class="modal-header">
+                    <h2><ion-icon name="options-outline"></ion-icon> <span data-i18n="settings_title">Settings & Preferences</span></h2>
+                    <button class="close-btn" id="closeSettingsBtn"><ion-icon name="close-outline"></ion-icon></button>
+                </div>
+                <div class="modal-body">
+                    <!-- AI Settings Section -->
+                    <div class="settings-section">
+                        <h3 style="font-size: 0.95rem; display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.5rem;">
+                            <ion-icon name="sparkles-outline" style="color: var(--primary);"></ion-icon>
+                            <span data-i18n="ai_settings_title">AI Copilot Configuration</span>
+                        </h3>
+                        <p style="font-size: 0.84rem; color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.5;" data-i18n="ai_settings_desc">
+                            The <strong>AI Copilot</strong> uses a shared free community tier by default. If the public pool is full, you can enter your own free Google Gemini API Key.
+                        </p>
+                        <div class="input-group" style="margin-bottom: 1rem;">
+                            <label for="geminiApiKey" data-i18n="api_key_label">Your Private Gemini API Key (Optional)</label>
+                            <input type="password" id="geminiApiKey" placeholder="AIzaSy..." dir="ltr">
+                            <span style="font-size: 0.75rem; color: var(--text-tertiary); margin-top: 4px; display: block; line-height: 1.4;">
+                                <span data-i18n="get_free_key">Get a free key at</span> <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: var(--primary);">Google AI Studio</a>. 
+                                <br><br><strong>🔒 <span data-i18n="security_note_title">Security Note:</span></strong> <span data-i18n="security_note_text">Your key is saved locally in your browser. All AI requests bypass our servers and go straight to Google.</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Language Settings Section -->
+                    <div class="settings-section" style="margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--border-color);">
+                        <h3 style="font-size: 0.95rem; display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.5rem;">
+                            <ion-icon name="globe-outline" style="color: var(--primary);"></ion-icon>
+                            <span data-i18n="language_settings_title">Language & AI Output</span>
+                        </h3>
+                        <div class="input-group" style="margin-bottom: 0.75rem;">
+                            <label for="siteLanguageSelect" data-i18n="interface_language">Interface Language</label>
+                            <select id="siteLanguageSelect">
+                                <option value="en">English (LTR)</option>
+                                <option value="he">עברית (RTL)</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="aiLanguageSelect" data-i18n="ai_output_language">AI Analysis Language</label>
+                            <select id="aiLanguageSelect">
+                                <option value="auto" data-i18n="ai_lang_auto">Match Interface Language (Recommended)</option>
+                                <option value="he" data-i18n="ai_lang_he">Hebrew (עברית)</option>
+                                <option value="en" data-i18n="ai_lang_en">English</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Security & Account Password Section -->
+                    <div class="settings-section" id="accountSecuritySection" style="margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--border-color);">
+                        <h3 style="font-size: 0.95rem; display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.5rem;">
+                            <ion-icon name="lock-closed-outline" style="color: var(--primary);"></ion-icon>
+                            <span data-i18n="security_password_title">Account Security & Password</span>
+                        </h3>
+                        <div class="input-group" style="margin-bottom: 0.75rem;">
+                            <label for="newPassword" data-i18n="new_password_label">New Password</label>
+                            <input type="password" id="newPassword" placeholder="••••••••" minlength="6" autocomplete="new-password" dir="ltr">
+                        </div>
+                        <div class="input-group" style="margin-bottom: 0.75rem;">
+                            <label for="confirmNewPassword" data-i18n="confirm_new_password_label">Confirm New Password</label>
+                            <input type="password" id="confirmNewPassword" placeholder="••••••••" minlength="6" autocomplete="new-password" dir="ltr">
+                        </div>
+                        <div id="changePasswordStatus" style="display: none; font-size: 0.8rem; margin-bottom: 0.75rem; padding: 0.4rem 0.6rem; border-radius: var(--radius-sm);"></div>
+                        <button type="button" class="btn-secondary" id="changePasswordBtn" style="font-size: 0.82rem; padding: 0.4rem 0.8rem;">
+                            <ion-icon name="key-outline"></ion-icon> <span data-i18n="update_password_btn">Update Password</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-footer" style="margin-top: 1.5rem;">
+                        <button type="button" class="btn-primary" id="saveSettingsBtn" data-i18n="save_settings_btn">Save Settings</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-card glass-panel">
+                <ion-icon name="document-text-outline" class="stat-icon applied-icon"></ion-icon>
+                <div class="stat-info">
+                    <span class="stat-value" id="stat-total">0</span>
+                    <span class="stat-label" data-i18n="stat_total">Total Applications</span>
+                </div>
+            </div>
+            <div class="stat-card glass-panel">
+                <ion-icon name="people-outline" class="stat-icon interview-icon"></ion-icon>
+                <div class="stat-info">
+                    <span class="stat-value" id="stat-interview">0</span>
+                    <span class="stat-label" data-i18n="stat_interviews">In Interviews</span>
+                </div>
+            </div>
+            <div class="stat-card glass-panel">
+                <ion-icon name="star-outline" class="stat-icon offer-icon"></ion-icon>
+                <div class="stat-info">
+                    <span class="stat-value" id="stat-offer">0</span>
+                    <span class="stat-label" data-i18n="stat_offers">Offers Received</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Documents Hub -->
+        <div class="docs-container glass-panel">
+            <div class="header-flex" style="display: flex; justify-content: space-between; align-items: center;">
+                <h2><ion-icon name="document-text"></ion-icon> <span data-i18n="my_documents">My Documents</span></h2>
+                <button class="btn-secondary" id="openDocModalBtn" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; display: flex; align-items: center; gap: 0.3rem;">
+                    <ion-icon name="add-circle-outline"></ion-icon> <span data-i18n="add_document">Add Document</span>
+                </button>
+            </div>
+            <div class="docs-grid" id="docsList">
+                <!-- Docs will be injected here via JS -->
+            </div>
+        </div>
+
+        <!-- Reminders & Quick Notes Hub -->
+        <div class="reminders-container glass-panel">
+            <div class="header-flex" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2 style="display: flex; align-items: center; gap: 0.5rem; font-size: 1.25rem;">
+                    <ion-icon name="bookmark-outline" style="color: var(--accent-primary);"></ion-icon> <span data-i18n="reminders_title">Reminders & Quick Notes</span>
+                </h2>
+                <span style="font-size: 0.85rem; color: var(--text-secondary);" id="remindersCount">0 active</span>
+            </div>
+            
+            <form id="reminderForm" class="reminder-form">
+                <input type="text" id="reminderInput" placeholder="Add a reminder (e.g. Follow up with Elad regarding Google, check status on Apple...)" data-i18n-placeholder="reminder_placeholder" required>
+                <button type="submit" class="btn-primary">
+                    <ion-icon name="add-outline"></ion-icon> <span data-i18n="add_note">Add Note</span>
+                </button>
+            </form>
+
+            <div class="reminders-list" id="remindersList">
+                <!-- Reminders will be injected here via JS -->
+            </div>
+        </div>
+
+        <main class="dashboard-content">
+            <div class="glass-panel table-container">
+                <div class="table-header" style="flex-wrap: wrap; gap: 1rem;">
+                    <h2 data-i18n="recent_applications">Recent Applications</h2>
+                    <div style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin-left: auto;">
+                        <div id="statusFilters" class="status-filters" style="display: flex; gap: 0.8rem; flex-wrap: wrap; font-size: 0.85rem; align-items: center; color: var(--text-secondary);">
+                            <!-- Status checkboxes injected by JS -->
+                        </div>
+                        <div class="search-bar">
+                            <ion-icon name="search-outline"></ion-icon>
+                            <input type="text" id="searchInput" placeholder="Search..." data-i18n-placeholder="search_placeholder">
+                        </div>
+                        <div class="dropdown-container">
+                            <button id="exportDropdownBtn" class="btn-secondary" style="padding: 0.4rem 0.8rem; display: flex; align-items: center; gap: 0.35rem;" title="Export & Backup Data">
+                                <ion-icon name="download-outline"></ion-icon> <span data-i18n="export_btn">Export</span> <ion-icon name="chevron-down-outline" style="font-size: 0.75rem;"></ion-icon>
+                            </button>
+                            <div id="exportMenu" class="dropdown-menu glass-panel" style="display: none;">
+                                <button type="button" class="dropdown-item" id="exportCsvBtn">
+                                    <ion-icon name="document-text-outline"></ion-icon> <span data-i18n="export_csv">Download Excel / CSV</span>
+                                </button>
+                                <button type="button" class="dropdown-item" id="copyTsvBtn">
+                                    <ion-icon name="copy-outline"></ion-icon> <span data-i18n="copy_tsv">Copy for Excel / Sheets</span>
+                                </button>
+                                <div class="dropdown-divider"></div>
+                                <button type="button" class="dropdown-item" id="exportJsonBtn">
+                                    <ion-icon name="cloud-download-outline"></ion-icon> <span data-i18n="export_json">Backup All Data (JSON)</span>
+                                </button>
+                                <button type="button" class="dropdown-item" id="importJsonBtn">
+                                    <ion-icon name="cloud-upload-outline"></ion-icon> <span data-i18n="import_json">Restore from JSON...</span>
+                                </button>
+                                <input type="file" id="importJsonInput" accept=".json" style="display: none;">
+                            </div>
+                        </div>
+                        <label style="display: flex; align-items: center; gap: 4px; font-size: 0.85rem; cursor: pointer; color: var(--text-secondary);">
+                            <input type="checkbox" id="showArchivedToggle"> <span data-i18n="show_archived">Show Archived</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table id="jobsTable">
+                        <thead>
+                            <tr>
+                                <th class="sortable" data-sort="company" style="cursor: pointer;"><span data-i18n="col_company">Company</span> <ion-icon name="swap-vertical-outline"></ion-icon></th>
+                                <th><span data-i18n="col_title">Job Title</span></th>
+                                <th><span data-i18n="col_summary">Role Summary</span></th>
+                                <th class="sortable" data-sort="location" style="cursor: pointer;"><span data-i18n="col_location">Location</span> <ion-icon name="swap-vertical-outline"></ion-icon></th>
+                                <th class="sortable" data-sort="status" style="cursor: pointer;"><span data-i18n="col_status">Status</span> <ion-icon name="swap-vertical-outline"></ion-icon></th>
+                                <th class="sortable" data-sort="date" style="cursor: pointer;"><span data-i18n="col_date">Date Applied</span> <ion-icon name="swap-vertical-outline"></ion-icon></th>
+                                <th><span data-i18n="col_actions">Actions</span></th>
+                            </tr>
+                        </thead>
+                        <tbody id="jobsList">
+                            <!-- Job rows will be populated here by JS -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="emptyState" class="empty-state">
+                    <ion-icon name="folder-open-outline"></ion-icon>
+                    <h3 data-i18n="empty_title">No applications yet</h3>
+                    <p data-i18n="empty_desc">Click 'New Application' to start tracking your applications and generating AI prep guides.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Job Modal -->
+    <div id="jobModal" class="modal-overlay">
+        <div class="modal-content glass-panel">
+            <div class="modal-header">
+                <h2><span data-i18n="modal_job_title">Add New Application</span></h2>
+                <button class="close-btn" id="closeModalBtn"><ion-icon name="close-outline"></ion-icon></button>
+            </div>
+            
+            <div class="ai-assistant-box" style="background: var(--primary-light); border: 1px solid var(--primary-border); padding: 1.25rem; border-radius: var(--radius-md); margin-bottom: 1.5rem;">
+                <h3 style="font-size: 0.95rem; color: var(--primary-hover); display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.75rem;">
+                    <ion-icon name="sparkles"></ion-icon> <span data-i18n="ai_autofill_title">Smart AI Auto-Fill</span>
+                </h3>
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem;" data-i18n="ai_autofill_desc">
+                    Paste the raw Job Description text below, and the AI will analyze it against your CV, calculate a match score, and auto-populate your entire preparation guide.
+                </p>
+                
+                <div class="input-group" style="margin-bottom: 0.75rem;">
+                    <textarea id="aiRawJd" rows="3" placeholder="Paste the full job description text here..." data-i18n-placeholder="ai_jd_placeholder"></textarea>
+                </div>
+                
+                <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+                    <select id="aiCvSelect" style="flex: 1; padding: 0.5rem; font-size: 0.82rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                        <option value="" data-i18n="select_cv_prompt">-- Select your CV to compare against --</option>
+                        <!-- Injected via JS -->
+                    </select>
+                    
+                    <button type="button" id="runAiBtn" class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.85rem; display: flex; align-items: center; gap: 0.4rem;">
+                        <ion-icon name="color-wand-outline"></ion-icon> <span data-i18n="generate_profile_btn">Generate Profile</span>
+                    </button>
+                </div>
+                <div id="aiLoading" style="display: none; align-items: center; gap: 0.5rem; margin-top: 0.75rem; font-size: 0.85rem; color: var(--primary);">
+                    <ion-icon name="sync-outline" class="spin"></ion-icon> <span data-i18n="ai_analyzing">Analyzing Job Description...</span> <span id="aiTimer" style="font-family: monospace; font-weight: 500;">(0.0s)</span>
+                </div>
+                <div id="aiMatchResult" style="display: none; margin-top: 1rem; padding: 0.75rem; background: var(--bg-surface); border-radius: var(--radius-sm); font-size: 0.85rem; border: 1px solid var(--border-color);">
+                    <strong><span data-i18n="match_score_label">Match Score:</span> <span id="aiMatchScore" style="color: var(--status-offer-text);">--</span></strong>
+                    <p id="aiMatchRationale" style="margin-top: 0.25rem; color: var(--text-secondary); line-height: 1.4;"></p>
+                    
+                    <!-- AI Feedback Component -->
+                    <div id="aiFeedbackBox" style="margin-top: 0.85rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-color);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+                            <span style="font-size: 0.8rem; font-weight: 500; color: var(--text-primary);" data-i18n="ai_feedback_question">Did this analysis help you?</span>
+                            <div style="display: flex; gap: 0.4rem;">
+                                <button type="button" class="btn-secondary feedback-thumb-btn" id="aiFeedbackThumbUp" title="Helpful / מדויק" style="padding: 0.2rem 0.55rem; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                    👍 <span data-i18n="yes">Yes</span>
+                                </button>
+                                <button type="button" class="btn-secondary feedback-thumb-btn" id="aiFeedbackThumbDown" title="Not accurate / לא מדויק" style="padding: 0.2rem 0.55rem; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                    👎 <span data-i18n="no">No</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="aiFeedbackInputRow" style="display: none; margin-top: 0.5rem; gap: 0.4rem; align-items: center;">
+                            <input type="text" id="aiFeedbackComment" placeholder="Optional short note or suggestion..." data-i18n-placeholder="ai_feedback_placeholder" style="flex: 1; padding: 0.35rem 0.55rem; font-size: 0.8rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                            <button type="button" id="aiSubmitFeedbackBtn" class="btn-primary" style="padding: 0.35rem 0.7rem; font-size: 0.8rem; white-space: nowrap;" data-i18n="send_feedback_btn">Send</button>
+                        </div>
+                        <div id="aiFeedbackSuccess" style="display: none; margin-top: 0.4rem; font-size: 0.78rem; color: var(--status-offer-text); font-weight: 500;">
+                            ✨ <span data-i18n="ai_feedback_thanks">Thank you for your feedback!</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <form id="jobForm">
+                <input type="hidden" id="matchScore" name="matchScore">
+                <input type="hidden" id="matchRationale" name="matchRationale">
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label for="company"><span data-i18n="company_name">Company Name</span> *</label>
+                        <input type="text" id="company" required placeholder="e.g. Google" dir="auto">
+                    </div>
+                    <div class="input-group">
+                        <label for="title"><span data-i18n="job_title">Job Title & Type</span> *</label>
+                        <input type="text" id="title" required placeholder="e.g. Software Engineer (Full-Time)" dir="auto">
+                    </div>
+                    <div class="input-group">
+                        <label for="location" data-i18n="location_label">Location</label>
+                        <input type="text" id="location" placeholder="e.g. Hybrid, Petah Tikva" dir="auto">
+                    </div>
+                    <div class="input-group">
+                        <label for="date" data-i18n="application_date">Application Date</label>
+                        <input type="date" id="date" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="cvVersion" data-i18n="cv_version_sent">CV Version Sent</label>
+                        <input type="text" id="cvVersion" placeholder="e.g. John_Doe_CV_v4.pdf" dir="auto">
+                    </div>
+                    <div class="input-group">
+                        <label for="status" data-i18n="status_label">Status</label>
+                        <select id="status">
+                            <option value="To Apply" data-i18n="status_to_apply">To Apply</option>
+                            <option value="Applied" data-i18n="status_applied">Applied</option>
+                            <option value="Referral Submitted" data-i18n="status_referral_submitted">Referral Submitted</option>
+                            <option value="Screening" data-i18n="status_screening">Screening (Phone/HR)</option>
+                            <option value="Technical Interview" data-i18n="status_tech_interview">Technical Interview</option>
+                            <option value="Offer" data-i18n="status_offer">Offer</option>
+                            <option value="Not Relevant" data-i18n="status_not_relevant">Not Relevant</option>
+                            <option value="Rejected" data-i18n="status_rejected">Rejected</option>
+                        </select>
+                    </div>
+                    <div class="input-group full-width">
+                        <label for="referral" data-i18n="referral_label">Referral / Contact Person</label>
+                        <input type="text" id="referral" placeholder="Name & Link (e.g. John Doe, LinkedIn Profile)" dir="auto">
+                    </div>
+                    <div class="input-group full-width">
+                        <label for="companyProduct" data-i18n="company_product_label">Company & Product Domain</label>
+                        <textarea id="companyProduct" rows="3" placeholder="What does the company/team actually build?" dir="auto"></textarea>
+                    </div>
+                    <div class="input-group full-width">
+                        <label for="jdSummary" data-i18n="jd_summary_label">Role Description (Your Words)</label>
+                        <textarea id="jdSummary" rows="3" placeholder="Short summary of what you'll be doing..." dir="auto"></textarea>
+                    </div>
+                    <div class="input-group full-width">
+                        <label for="jdLink" data-i18n="jd_link_label">Link to Job Posting</label>
+                        <input type="url" id="jdLink" placeholder="https://..." dir="ltr">
+                    </div>
+                </div>
+
+                <div class="synthesis-section">
+                    <h3 data-i18n="ai_prep_synthesis">AI Prep Synthesis</h3>
+                    <div class="input-group full-width">
+                        <label for="mustHave" data-i18n="must_have_label">🔴 MUST PREPARE (Technical Topics)</label>
+                        <textarea id="mustHave" rows="4" placeholder="e.g. Memory management in C++, OS primitives" dir="auto"></textarea>
+                    </div>
+                    <div class="input-group full-width">
+                        <label for="goodToHave" data-i18n="good_to_have_label">🟡 GOOD TO KNOW (Bonus Topics)</label>
+                        <textarea id="goodToHave" rows="4" placeholder="e.g. Docker, specific frameworks" dir="auto"></textarea>
+                    </div>
+                    <div class="input-group full-width">
+                        <label for="notes" data-i18n="notes_label">💡 Tailored Pitch / Action Items</label>
+                        <textarea id="notes" rows="3" placeholder="What specific project to highlight?" dir="auto"></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancelBtn" data-i18n="cancel_btn">Cancel</button>
+                    <button type="submit" class="btn-primary" data-i18n="save_application_btn">Save Application</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- View Job Details Modal -->
+    <div id="viewModal" class="modal-overlay">
+        <div class="modal-content glass-panel view-mode">
+            <div class="modal-header">
+                <h2 id="view-company-title">Company - Title</h2>
+                <button class="close-btn" id="closeViewModalBtn"><ion-icon name="close-outline"></ion-icon></button>
+            </div>
+            <div class="view-body" id="view-body-content">
+                <!-- Content injected via JS -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-danger" id="deleteJobBtn" data-i18n="delete_entry_btn">Delete Entry</button>
+                <button type="button" class="btn-primary" id="editJobBtn" data-i18n="edit_entry_btn">Edit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Document Modal -->
+    <div id="docModal" class="modal-overlay">
+        <div class="modal-content glass-panel" style="max-width: 480px;">
+            <div class="modal-header">
+                <h2 id="docModalTitle" data-i18n="add_new_doc_title">Add New Document</h2>
+                <button class="close-btn" id="closeDocModalBtn"><ion-icon name="close-outline"></ion-icon></button>
+            </div>
+            <form id="docForm">
+                <div class="form-grid" style="grid-template-columns: 1fr;">
+                    <div class="input-group">
+                        <label for="docType"><span data-i18n="doc_type">Document Type</span> *</label>
+                        <select id="docType" required>
+                            <option value="CV" data-i18n="doc_type_cv">CV / Resume</option>
+                            <option value="Transcript" data-i18n="doc_type_transcript">Transcript / Grades Sheet</option>
+                            <option value="Cover Letter" data-i18n="doc_type_cover_letter">Cover Letter</option>
+                            <option value="Certificate" data-i18n="doc_type_certificate">Certificate / Portfolio</option>
+                            <option value="Other" data-i18n="doc_type_other">Other</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="docVersion"><span data-i18n="doc_version_title">Version / Title</span> *</label>
+                        <input type="text" id="docVersion" required placeholder="e.g. Embedded & Low-Level, GPA 92 Transcript" dir="auto">
+                    </div>
+                    <div class="input-group">
+                        <label for="docDate" data-i18n="doc_date">Date</label>
+                        <input type="date" id="docDate" required>
+                    </div>
+                    <div class="input-group">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                            <label for="docFile" id="docFileLabel" style="margin-bottom: 0;" data-i18n="pdf_doc_label">PDF Document (Optional)</label>
+                            <span id="docParsedStatus" style="display: none; align-items: center; gap: 6px;">
+                                <span style="font-size: 0.75rem; color: var(--status-offer-text); font-weight: 500; display: inline-flex; align-items: center; gap: 3px;">
+                                    <ion-icon name="checkmark-circle"></ion-icon> <span data-i18n="ai_parsed_status">AI Parsed</span>
+                                </span>
+                                <button type="button" id="clearParsedTextBtn" title="Delete parsed text" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 0.72rem; display: inline-flex; align-items: center; gap: 2px; padding: 0 2px; text-decoration: underline;">
+                                    <ion-icon name="trash-outline"></ion-icon> <span data-i18n="remove_text">Remove Text</span>
+                                </button>
+                            </span>
+                        </div>
+
+                        <!-- Custom Compact File Input -->
+                        <div class="custom-file-upload" style="display: flex; align-items: center; gap: 0.5rem; background: var(--bg-tertiary, #f1f5f9); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.4rem 0.6rem;">
+                            <label for="docFile" class="btn-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.78rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.3rem; margin-bottom: 0; white-space: nowrap; border-radius: var(--radius-sm);">
+                                <ion-icon name="cloud-upload-outline"></ion-icon> <span id="docBtnText" data-i18n="choose_pdf">Choose PDF</span>
+                            </label>
+                            <span id="docFileName" style="font-size: 0.78rem; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0;" data-i18n="no_file_chosen">No file chosen</span>
+                            <input type="file" id="docFile" accept="application/pdf" style="display: none;">
+                        </div>
+
+                        <div style="margin-top: 0.35rem; display: flex; align-items: center; gap: 0.4rem;">
+                            <input type="checkbox" id="aiConsentDoc"> 
+                            <label for="aiConsentDoc" style="display:inline; font-size:0.75rem; cursor: pointer; color: var(--text-secondary);" data-i18n="consent_ai_parsing">Consent to AI CV parsing</label>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="docLink" data-i18n="link_to_doc">Link to Document (Optional)</label>
+                        <input type="url" id="docLink" placeholder="https://drive.google.com/file/d/..." dir="ltr">
+                    </div>
+                    <div class="input-group">
+                        <label for="docChangeLog" data-i18n="doc_description">Description / Changes</label>
+                        <textarea id="docChangeLog" rows="2" placeholder="e.g. Added Systems Lab grade, updated project section..." dir="auto"></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer" style="margin-top: 1.5rem;">
+                    <button type="button" class="btn-secondary" id="cancelDocBtn" data-i18n="cancel_btn">Cancel</button>
+                    <button type="submit" class="btn-primary" data-i18n="save_document_btn">Save Document</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Auth Modal (Login / Sign Up) -->
+    <div id="authModal" class="modal-overlay active">
+        <div class="modal-content glass-panel auth-card">
+            <div class="auth-header">
+                <div class="auth-icon-wrap">
+                    <ion-icon name="cloud-done-outline"></ion-icon>
+                </div>
+                <h2>Job Tracker Cloud</h2>
+                <p id="authSubtitle" data-i18n="auth_subtitle">Log in to sync your applications and notes across all your devices.</p>
+            </div>
+
+            <!-- Google One-Click Sign In -->
+            <button type="button" class="google-auth-btn" id="googleAuthBtn">
+                <svg width="18" height="18" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
+                    <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.34 24 12 24z"/>
+                    <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.98 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+                    <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+                </svg>
+                <span data-i18n="continue_with_google">Continue with Google</span>
+            </button>
+
+            <div class="auth-divider">
+                <span data-i18n="or_email_password">or email & password</span>
+            </div>
+
+            <div class="auth-tabs">
+                <button type="button" class="auth-tab active" id="tabLogin" data-i18n="tab_login">Log In</button>
+                <button type="button" class="auth-tab" id="tabSignUp" data-i18n="tab_signup">Sign Up</button>
+            </div>
+
+            <form id="authForm">
+                <div class="input-group">
+                    <label for="authEmail" data-i18n="email_address">Email Address</label>
+                    <input type="email" id="authEmail" required placeholder="your.email@example.com" autocomplete="email" dir="ltr">
+                </div>
+                <div class="input-group">
+                    <label for="authPassword" data-i18n="password_label">Password</label>
+                    <input type="password" id="authPassword" required placeholder="••••••••" autocomplete="current-password" minlength="6" dir="ltr">
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; margin-top: -0.4rem; margin-bottom: 0.8rem;">
+                    <a href="#" id="openForgotPasswordBtn" style="font-size: 0.78rem; color: var(--primary); text-decoration: underline;" data-i18n="forgot_password_link">Forgot Password?</a>
+                </div>
+
+                <div class="consent-group" style="display: flex; align-items: flex-start; gap: 0.5rem; margin: 0.6rem 0 1rem; font-size: 0.8rem; color: var(--text-secondary);">
+                    <input type="checkbox" id="privacyConsent" required style="margin-top: 2px;">
+                    <label for="privacyConsent">
+                        <span data-i18n="agree_to_terms_prefix">I agree to the</span> <a href="#" id="openPrivacyModalBtn" style="color: var(--primary); text-decoration: underline;" data-i18n="privacy_terms_link">Privacy Policy & Terms</a>. <span data-i18n="agree_to_terms_suffix">My data is isolated & secure.</span>
+                    </label>
+                </div>
+
+                <div id="authError" class="auth-error" style="display: none;"></div>
+                <div id="authSuccess" class="auth-success" style="display: none;"></div>
+
+                <button type="submit" class="btn-primary auth-submit-btn" id="authSubmitBtn">
+                    <span id="authBtnText" data-i18n="tab_login">Log In</span>
+                    <ion-icon name="arrow-forward-outline"></ion-icon>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgotPasswordModal" class="modal-overlay">
+        <div class="modal-content glass-panel" style="max-width: 440px;">
+            <div class="modal-header">
+                <h2><ion-icon name="key-outline"></ion-icon> <span data-i18n="reset_password_title">Reset Password</span></h2>
+                <button class="close-btn" id="closeForgotModalBtn"><ion-icon name="close-outline"></ion-icon></button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 0.86rem; color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.5;" data-i18n="reset_password_desc">
+                    Enter your account email address below, and we will send you a secure password reset link.
+                </p>
+                <form id="forgotPasswordForm">
+                    <div class="input-group" style="margin-bottom: 1rem;">
+                        <label for="forgotEmail" data-i18n="email_address">Email Address</label>
+                        <input type="email" id="forgotEmail" required placeholder="your.email@example.com" dir="ltr">
+                    </div>
+                    <div id="forgotPasswordStatus" style="display: none; font-size: 0.82rem; margin-bottom: 1rem; padding: 0.5rem 0.75rem; border-radius: var(--radius-sm);"></div>
+                    <div class="modal-footer" style="margin-top: 1rem;">
+                        <button type="button" class="btn-secondary" id="cancelForgotBtn" data-i18n="cancel_btn">Cancel</button>
+                        <button type="submit" class="btn-primary" id="sendResetEmailBtn" data-i18n="send_reset_link_btn">Send Reset Link</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Accessibility Statement Modal (הצהרת נגישות תקנית) -->
+    <div id="accessibilityModal" class="modal-overlay">
+        <div class="modal-content glass-panel" style="max-width: 560px;">
+            <div class="modal-header">
+                <h2><ion-icon name="accessibility-outline"></ion-icon> <span data-i18n="a11y_modal_title">Accessibility Statement</span></h2>
+                <button class="close-btn" id="closeAccessibilityModalBtn"><ion-icon name="close-outline"></ion-icon></button>
+            </div>
+            <div class="modal-body" style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6;">
+                <div id="a11yContentHebrew" class="lang-content-he" style="display: none;">
+                    <h3 style="font-size: 1rem; color: var(--text-primary); margin-bottom: 0.5rem;">הצהרת נגישות לאתר Job Tracker Cloud</h3>
+                    <p>אנו ב-<strong>Job Tracker Cloud</strong> רואים חשיבות עליונה במתן שירות שוויוני ונגיש לכלל המשתמשים, לרבות אנשים עם מוגבלויות.</p>
+                    <br>
+                    <p><strong>1. תקני נגישות:</strong> האתר נבנה ומותאם בהתאם לתקנות שוויון זכויות לאנשים עם מוגבלות (התאמות נגישות לשירות), התשע"ג-2013, ועומד בהנחיות תקן ישראלי ת"י 5568 והנחיות הנגישות הבינלאומיות <strong>WCAG 2.1 ברמת AA</strong>.</p>
+                    <br>
+                    <p><strong>2. התאמות שבוצעו באתר:</strong></p>
+                    <ul style="padding-inline-start: 1.5rem; margin-top: 0.4rem;">
+                        <li>תמיכה מלאה בניווט מקלדת (שימוש ב-Tab, Enter, Escape לסגירת חלונות).</li>
+                        <li>תמיכה מלאה בכיווניות שפה (RTL בעברית ו-LTR באנגלית).</li>
+                        <li>יחסי ניגודיות צבעים תקניים לקריאות אופטימלית.</li>
+                        <li>שימוש בתגיות HTML סמנטיות ומאפייני ARIA לקוראי מסך.</li>
+                        <li>תמיכה בהגדלת גופן וזום של הדפדפן ללא שבירת רכיבי ממשק.</li>
+                    </ul>
+                    <br>
+                    <p><strong>3. פניות בנושא נגישות ורכז נגישות:</strong> אם נתקלתם בקושי או בליקוי נגישות, נשמח לקבל את פנייתכם ולתקן בהקדם:</p>
+                    <p style="margin-top: 0.4rem;">
+                        👤 <strong>רכז נגישות:</strong> יונתן גפרי<br>
+                        📧 <strong>פניות ומשוב:</strong> ניתן לפנות ישירות דרך כפתור <a href="#feedback" class="open-feedback-link" style="color: var(--primary); text-decoration: underline;">Give Feedback</a> בתחתית האתר.
+                    </p>
+                    <p style="font-size: 0.78rem; color: var(--text-tertiary); margin-top: 0.8rem;">תאריך עדכון אחרון: פברואר 2026</p>
+                </div>
+                <div id="a11yContentEnglish" class="lang-content-en">
+                    <h3 style="font-size: 1rem; color: var(--text-primary); margin-bottom: 0.5rem;">Accessibility Statement for Job Tracker Cloud</h3>
+                    <p>At <strong>Job Tracker Cloud</strong>, we are committed to providing an accessible, inclusive, and seamless experience for all users, including people with disabilities.</p>
+                    <br>
+                    <p><strong>1. Accessibility Standards:</strong> This website was built and adapted in accordance with standard web accessibility requirements, adhering to <strong>WCAG 2.1 Level AA</strong> recommendations and applicable accessibility regulations.</p>
+                    <br>
+                    <p><strong>2. Adjustments Made on the Site:</strong></p>
+                    <ul style="padding-inline-start: 1.5rem; margin-top: 0.4rem;">
+                        <li>Full keyboard navigation support (Tab, Enter, Escape to close modals).</li>
+                        <li>Full bidirectional text support (RTL for Hebrew, LTR for English).</li>
+                        <li>Compliant color contrast ratios for optimal readability.</li>
+                        <li>Semantic HTML markup and ARIA attributes for screen readers.</li>
+                        <li>Support for browser zooming and text scaling without broken UI elements.</li>
+                    </ul>
+                    <br>
+                    <p><strong>3. Accessibility Inquiries & Accessibility Officer:</strong> If you encounter any difficulty or accessibility barrier, please reach out to us so we can resolve it promptly:</p>
+                    <p style="margin-top: 0.4rem;">
+                        👤 <strong>Accessibility Officer:</strong> Yonatan Gafri<br>
+                        📧 <strong>Inquiries & Feedback:</strong> You can contact us directly via the <a href="#feedback" class="open-feedback-link" style="color: var(--primary); text-decoration: underline;">Give Feedback</a> button in the footer.
+                    </p>
+                    <p style="font-size: 0.78rem; color: var(--text-tertiary); margin-top: 0.8rem;">Last updated: February 2026</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Privacy Policy & Terms of Use Modal -->
+    <div id="privacyModal" class="modal-overlay">
+        <div class="modal-content glass-panel" style="max-width: 520px;">
+            <div class="modal-header">
+                <h2><ion-icon name="shield-checkmark-outline"></ion-icon> <span data-i18n="privacy_modal_title">Privacy & Terms of Use</span></h2>
+                <button class="close-btn" id="closePrivacyModalBtn"><ion-icon name="close-outline"></ion-icon></button>
+            </div>
+            <div class="modal-body" style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5;">
+                <div id="privacyContentHebrew" class="lang-content-he" style="display: none;">
+                    <p><strong>1. פרטיות נתונים ואבטחה:</strong> הגשות המועמדות, המסמכים, ההערות והתזכורות שלך נשמרים באמצעות אמצעי אבטחה טכנולוגיים וארגוניים מתקדמים, כולל הצפנת מסד נתונים והפרדת הרשאות מלאה (Row-Level Security - RLS). הגישה למידע שלך מוגבלת לחשבונך ומתוכננת למנוע גישה מכל משתמש אחר.</p>
+                    <br>
+                    <p><strong>2. אי-מכירת מידע אישי:</strong> איננו מוכרים או מבצעים מונטיזציה של המידע האישי שלך או של פעילות חיפוש העבודה שלך. איננו משתפים מידע אישי עם מפרסמים או גורמי צד שלישי למטרות פרסום ושיווק, למעט במקרים הנדרשים לאספקת השירות או על פי חוק.</p>
+                    <br>
+                    <p><strong>3. שליטה במידע וזכות למחיקה:</strong> באפשרותך לנהל את המידע שלך דרך המערכת, כולל מחיקת מועמדויות ומסמכים בודדים. כמו כן, ניתן לבקש מחיקה מלאה וצמיתה של החשבון וכל המידע המשויך אליו, בכפוף לחובות חוקיות. אנו מחויבים להעניק למשתמשים שליטה מלאה בנתוניהם בהתאם לחוקי הגנת הפרטיות (כולל תקנות ה-GDPR היכן שחל).</p>
+                    <br>
+                    <p><strong>4. עיבוד באמצעות AI ואפשרויות פרטיות:</strong> לצורך הפקת תובנות והכנה לראיונות מבוססות AI, בקשות עשויות להיות מעובדות באמצעות מודל Google Gemini דרך מפתח שירות שיתופי. המידע עשוי להיות מעובד בהתאם לתנאי השירות ומדיניות הפרטיות של Google API.<br>
+                    למשתמשים המעוניינים בשליטה מרבית, האפליקציה מאפשרת להזין מפתח Google Gemini API פרטי בתפריט ההגדרות. במצב זה, הקריאות נשלחות ישירות מהדפדפן שלך אל ספק ה-AI ללא מעבר בשרתי האפליקציה, ומפתח ה-API נשמר מקומית בלבד בדפדפן שלך.</p>
+                    <br>
+                    <p><strong>5. הסרת אחריות לגבי פלט ה-AI:</strong> התובנות וההמלצות המופקות על ידי ה-AI נועדו למטרות מידע כללי בלבד. ייתכן שהן יהיו בלתי מדויקות, חלקיות או לא מעודכנות, ואינן מהוות ייעוץ מקצועי, משפטי, תעסוקתי או פיננסי. על המשתמש לבדוק ולאמת את המידע לפני הסתמכות עליו בהחלטות הנוגעות לחיפוש עבודה.</p>
+                    <br>
+                    <p><strong>6. מחיקת חשבון, פניות תמיכה ופרטיות:</strong> אם ברצונך לבקש מחיקה מלאה וצמיתה של חשבונך וכל הנתונים המשויכים לו ממסד הנתונים, או בכל שאלה ועניין בנושא פרטיות, ניתן לשלוח פנייה דרך כפתור <a href="#feedback" class="open-feedback-link" style="color: var(--primary); font-weight: 500; text-decoration: underline;">Give Feedback</a> בתחתית האתר (משתמשים מחוברים יכולים גם להפעיל מחיקה מיידית ישירות באמצעות הכפתור למטה). אנו נטפל בבקשות בהקדם ובהתאם לדין.</p>
+                </div>
+                <div id="privacyContentEnglish" class="lang-content-en">
+                    <p><strong>1. Data Privacy & Security:</strong> Your applications, documents, notes, and reminders are stored using appropriate technical and organizational security measures, including database encryption and Row-Level Security (RLS), where applicable. Access to your data is restricted according to the application's authorization rules and is designed to prevent unauthorized access by other users.</p>
+                    <br>
+                    <p><strong>2. No Sale of Personal Data:</strong> We do not sell or monetize your personal information or your job-search activity. We do not intentionally share your personal information with advertisers or other third parties for advertising or marketing purposes, except where necessary to provide the service or where required or permitted by applicable law.</p>
+                    <br>
+                    <p><strong>3. Data Control & Deletion Rights:</strong> You can manage your data through the application, including deleting individual applications where supported. You may also request deletion of your account and associated personal data, subject to any data that we may be required or permitted to retain under applicable law or legitimate legal obligations. We aim to provide users with appropriate rights and controls over their personal data in accordance with applicable data-protection laws, including the GDPR where applicable.</p>
+                    <br>
+                    <p><strong>4. AI Processing & Privacy Options:</strong> To provide AI-powered insights, certain requests may be processed using Google Gemini through an API key provided by the service. Depending on the applicable Google API service and terms, information submitted for AI processing may be processed by Google in accordance with Google's applicable terms and privacy practices, including any applicable provisions concerning service improvement.<br>
+                    For users who prefer greater control over AI processing, the application may allow you to provide your own Gemini API key through the Settings menu. When configured for direct client-side use, the API request is sent directly from your browser to the applicable AI provider rather than through our application servers. Your personal API key is stored locally in your browser. Please note that use of a personal API key is subject to the AI provider's own terms, policies, and applicable charges.</p>
+                    <br>
+                    <p><strong>5. AI Disclaimer:</strong> AI-generated insights and recommendations are provided for general informational purposes only. They may be inaccurate, incomplete, or outdated and do not constitute professional, legal, financial, employment, or other expert advice. Users should independently review and verify AI-generated information before relying on it or making decisions related to their job search.</p>
+                    <br>
+                    <p><strong>6. Account Deletion, Privacy Inquiries & Support:</strong> If you wish to request the complete and permanent deletion of your user account and all associated records from our database, or if you have questions, concerns, or need assistance regarding your personal data, please send us a message using the <a href="#feedback" class="open-feedback-link" style="color: var(--primary); font-weight: 500; text-decoration: underline;">Give Feedback</a> button in the footer (logged-in users can also trigger immediate deletion directly via the button below). We will promptly review and process your data erasure requests in accordance with applicable laws and regulations.</p>
+                </div>
+                
+                <div id="deleteAccountSection" style="display: none; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-color); justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.8rem; color: #ef4444;" data-i18n="danger_zone">Danger zone:</span>
+                    <button type="button" class="btn-danger" id="deleteAccountBtn" style="padding: 0.4rem 0.8rem; font-size: 0.82rem;">
+                        <ion-icon name="trash-outline"></ion-icon> <span data-i18n="delete_all_data">Delete All My Data</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Give Feedback Modal -->
+    <div id="feedbackModal" class="modal-overlay">
+        <div class="modal-content glass-panel" style="max-width: 480px;">
+            <div class="modal-header">
+                <h2><ion-icon name="chatbubble-ellipses-outline"></ion-icon> <span data-i18n="feedback_modal_title">Give Feedback</span></h2>
+                <button class="close-btn" id="closeFeedbackModalBtn"><ion-icon name="close-outline"></ion-icon></button>
+            </div>
+            <div class="modal-body" style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5;">
+                <p style="margin-bottom: 1.2rem; font-size: 0.85rem; color: var(--text-tertiary);" data-i18n="feedback_modal_desc">
+                    Have feedback, a feature request, or an issue? Send a direct message and we'll receive it directly by email.
+                </p>
+                <form id="feedbackForm">
+                    <div class="input-group" style="margin-bottom: 1rem;">
+                        <label for="feedbackCategory" data-i18n="feedback_category_label">Category</label>
+                        <select id="feedbackCategory" required>
+                            <option value="General Feedback" data-i18n="feedback_cat_general">💡 General Feedback</option>
+                            <option value="Feature Request" data-i18n="feedback_cat_feature">✨ Feature Request</option>
+                            <option value="Bug Report" data-i18n="feedback_cat_bug">🐞 Bug Report</option>
+                            <option value="AI Analysis Quality" data-i18n="feedback_cat_ai">🤖 AI Analysis Quality</option>
+                            <option value="Other" data-i18n="feedback_cat_other">📝 Other Inquiry</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group" style="margin-bottom: 1rem;">
+                        <label for="feedbackMessage" data-i18n="feedback_message_label">Your Message</label>
+                        <textarea id="feedbackMessage" rows="4" required placeholder="Share your feedback, ideas, or issues..." style="resize: vertical; min-height: 100px;" data-i18n-placeholder="feedback_message_placeholder"></textarea>
+                    </div>
+
+                    <div id="feedbackStatus" style="display: none; font-size: 0.84rem; margin-bottom: 1rem; padding: 0.6rem 0.8rem; border-radius: var(--radius-sm);"></div>
+
+                    <div class="modal-footer" style="margin-top: 1.2rem; display: flex; justify-content: flex-end; gap: 0.75rem;">
+                        <button type="button" class="btn-secondary" id="cancelFeedbackBtn" data-i18n="cancel_btn">Cancel</button>
+                        <button type="submit" class="btn-primary" id="sendFeedbackSubmitBtn" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                            <ion-icon name="paper-plane-outline"></ion-icon> <span data-i18n="send_feedback_btn_text">Send Feedback</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Footer -->
+    <footer class="app-footer" style="text-align: center; padding: 2rem 1rem 1rem; color: var(--text-tertiary); font-size: 0.82rem; line-height: 1.6;">
+        <p>🚀 <strong>Job Tracker Cloud</strong> &nbsp;|&nbsp; Built by YG Software Solutions</p>
+        <p>&copy; 2026 YG Software Solutions. All rights reserved.</p>
+        <p style="margin-top: 0.75rem; display: flex; justify-content: center; gap: 1rem; align-items: center; flex-wrap: wrap;">
+            <a href="https://github.com/YonatanGafri/job-tracker-app" target="_blank" rel="noopener noreferrer" style="color: var(--text-secondary); text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem;" title="GitHub Repository (Open Source)">
+                <ion-icon name="logo-github"></ion-icon> <span data-i18n="footer_github">Open Source on GitHub</span>
+            </a>
+            <span style="color: var(--border-color);">·</span>
+            <a href="#feedback" id="footerFeedbackBtn" style="color: var(--text-secondary); text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem;" title="Give Feedback">
+                <ion-icon name="chatbubble-ellipses-outline"></ion-icon> <span data-i18n="footer_feedback">Give Feedback</span>
+            </a>
+            <span style="color: var(--border-color);">·</span>
+            <a href="#accessibility" id="footerAccessibilityBtn" style="color: var(--primary); text-decoration: underline;" data-i18n="footer_accessibility">Accessibility Statement</a>
+            <span style="color: var(--border-color);">·</span>
+            <a href="#privacy" id="footerPrivacyBtn" style="color: var(--primary); text-decoration: underline;" data-i18n="footer_privacy">Privacy & Terms of Use</a>
+        </p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
