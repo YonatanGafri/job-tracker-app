@@ -358,7 +358,7 @@ const TRANSLATIONS = {
     }
 };
 
-let currentLang = localStorage.getItem('appLang') || 'en';
+let currentLang = localStorage.getItem('appLang') || 'he';
 let aiOutputLang = localStorage.getItem('aiLang') || 'auto';
 
 function t(key, defaultVal = '') {
