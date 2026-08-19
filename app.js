@@ -1782,12 +1782,33 @@ if (reminderForm) {
     });
 }
 
+function getCompanyLogoUrl(companyName, jdLink) {
+    if (!companyName) return '';
+    const clean = companyName.trim().toLowerCase();
+
+    // Specific direct logo overrides (e.g. Radware)
+    const customLogos = {
+        'radware': 'https://www.google.com/s2/favicons?domain=radware.com&sz=128'
+    };
+
+    if (customLogos[clean]) {
+        return customLogos[clean];
+    }
+    for (const k of Object.keys(customLogos)) {
+        if (clean.includes(k)) return customLogos[k];
+    }
+
+    const domain = getCompanyDomain(companyName, jdLink);
+    return domain ? `https://unavatar.io/${domain}?fallback=https%3A%2F%2Fwww.google.com%2Fs2%2Ffavicons%3Fdomain%3D${domain}%26sz%3D128` : '';
+}
+
 function getCompanyDomain(companyName, jdLink) {
     if (!companyName) return '';
     const clean = companyName.trim();
     
     // Check known tech companies map for exact high-quality domains
     const knownDomains = {
+        'radware': 'radware.com',
         'google': 'google.com',
         'meta': 'meta.com',
         'facebook': 'meta.com',
@@ -1936,8 +1957,7 @@ function renderJobs(filterText = '') {
             const colorIdx = (initial.charCodeAt(0) || 0) % colors.length;
             const avatarColor = colors[colorIdx];
 
-            const domain = getCompanyDomain(job.company, job.jdLink);
-            const logoUrl = domain ? `https://unavatar.io/${domain}?fallback=https%3A%2F%2Fwww.google.com%2Fs2%2Ffavicons%3Fdomain%3D${domain}%26sz%3D128` : '';
+            const logoUrl = getCompanyLogoUrl(job.company, job.jdLink);
 
             const tr = document.createElement('tr');
             tr.className = 'job-row-card';
