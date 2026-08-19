@@ -1981,7 +1981,8 @@ window.viewJob = function(id) {
     currentEditingId = id;
     viewCompanyTitle.textContent = `${job.company} - ${job.title}`;
     
-    let linkHtml = job.jdLink ? (job.jdLink.startsWith('http') ? '<a href="' + job.jdLink + '" target="_blank" style="color: var(--accent-primary); text-decoration: underline;">Open Link</a>' : job.jdLink) : 'N/A';
+    let linkHtml = job.jdLink ? (job.jdLink.startsWith('http') ? '<a href="' + job.jdLink + '" target="_blank" style="color: var(--accent-primary); text-decoration: underline;">' + t('open_link', 'Open Link') + '</a>' : job.jdLink) : t('none', 'N/A');
+    const localizedStatus = getLocalizedStatus(job.status);
 
     viewBodyContent.innerHTML = `
         ${job.matchScore ? `
@@ -1997,56 +1998,56 @@ window.viewJob = function(id) {
         ` : ''}
         <div class="view-grid">
             <div class="view-section">
-                <h3>Location</h3>
-                <p>${job.location || 'N/A'}</p>
+                <h3>${t('location_label', 'Location')}</h3>
+                <p>${job.location || t('none', 'N/A')}</p>
             </div>
             <div class="view-section">
-                <h3>Status</h3>
-                <p><span class="status-badge status-${job.status.split(' ')[0]}">${job.status}</span></p>
+                <h3>${t('status_label', 'Status')}</h3>
+                <p><span class="status-badge status-${job.status.split(' ')[0]}">${localizedStatus}</span></p>
             </div>
             <div class="view-section">
-                <h3>Date Applied</h3>
+                <h3>${t('application_date', 'Date Applied')}</h3>
                 <p>${formatDate(job.date)}</p>
             </div>
             <div class="view-section">
-                <h3>CV Version</h3>
-                <p>${job.cvVersion || 'N/A'}</p>
+                <h3>${t('cv_version_sent', 'CV Version Sent')}</h3>
+                <p>${job.cvVersion || t('none', 'N/A')}</p>
             </div>
         </div>
         
         <div class="view-section">
-            <h3>Referral / Contact</h3>
-            <p>${job.referral || 'N/A'}</p>
+            <h3>${t('referral_label', 'Referral / Contact Person')}</h3>
+            <p>${job.referral || t('none', 'N/A')}</p>
         </div>
 
         <div class="view-section">
-            <h3>Company & Product Domain</h3>
-            <p>${job.companyProduct || 'N/A'}</p>
+            <h3>${t('company_product_label', 'Company & Product Domain')}</h3>
+            <p>${job.companyProduct || t('none', 'N/A')}</p>
         </div>
         
         <div class="view-section">
-            <h3>Role Description</h3>
-            <p>${job.jdSummary || 'N/A'}</p>
+            <h3>${t('jd_summary_label', 'Role Description (Your Words)')}</h3>
+            <p>${job.jdSummary || t('none', 'N/A')}</p>
         </div>
 
         <div class="view-section">
-            <h3>Link to Job Posting</h3>
+            <h3>${t('jd_link_label', 'Link to Job Posting')}</h3>
             <p>${linkHtml}</p>
         </div>
         
         <div class="prep-box must">
-            <h3>🔴 MUST PREPARE</h3>
-            <p>${job.mustHave || 'No notes'}</p>
+            <h3>${t('must_have_label', '🔴 MUST PREPARE')}</h3>
+            <p>${job.mustHave || t('none', 'No notes')}</p>
         </div>
         
         <div class="prep-box good">
-            <h3>🟡 GOOD TO KNOW</h3>
-            <p>${job.goodToHave || 'No notes'}</p>
+            <h3>${t('good_to_have_label', '🟡 GOOD TO KNOW')}</h3>
+            <p>${job.goodToHave || t('none', 'No notes')}</p>
         </div>
         
         <div class="prep-box pitch">
-            <h3>💡 Tailored Pitch</h3>
-            <p>${job.notes || 'No notes'}</p>
+            <h3>${t('notes_label', '💡 Tailored Pitch')}</h3>
+            <p>${job.notes || t('none', 'No notes')}</p>
         </div>
     `;
     
