@@ -58,8 +58,23 @@ const TRANSLATIONS = {
         col_status: "Status",
         col_date: "Date Applied",
         col_actions: "Actions",
-        empty_title: "No applications yet",
-        empty_desc: "Click 'New Application' to start tracking your applications and generating AI prep guides.",
+        empty_title: "Welcome to Job Tracker!",
+        empty_desc: "Manage your applications, tailored CVs, and AI interview prep guides all in one secure workspace.",
+        how_it_works_title: "How It Works in 4 Simple Steps",
+        step1_title: "1. Document Versions & CVs",
+        step1_desc: "Store tailored CVs, transcripts & cover letters with fast Drive links and version changelogs.",
+        step2_title: "2. Paste Job & AI Match",
+        step2_desc: "Paste raw job descriptions to extract company details and compute an instant CV match score.",
+        step3_title: "3. Targeted Interview Prep",
+        step3_desc: "Receive MUST PREPARE technical topics, GOOD TO KNOW bonus points, and tailored pitch strategies.",
+        step4_title: "4. Recruiter Call Readiness",
+        step4_desc: "Recruiter called unexpectedly? Open the app in 2 seconds to know the product, role & key talking points!",
+        load_demo_btn: "See How It Works (Load Demo)",
+        guest_explore_btn: "Explore Demo without Sign-in",
+        guide_btn: "How It Works",
+        demo_banner_title: "Demo Mode Active (Sample Data)",
+        demo_banner_desc: "Exploring sample CVs, an active application, and an AI prep guide. Click the job below to view details, or clear demo data anytime.",
+        clear_demo_btn: "Clear Demo Data",
         modal_job_title: "Add New Application",
         ai_autofill_title: "Smart AI Auto-Fill",
         ai_autofill_desc: "Paste the raw Job Description text below, and the AI will analyze it against your CV, calculate a match score, and auto-populate your entire preparation guide.",
@@ -215,8 +230,23 @@ const TRANSLATIONS = {
         col_status: "סטטוס",
         col_date: "תאריך הגשה",
         col_actions: "פעולות",
-        empty_title: "אין עדיין מועמדויות",
-        empty_desc: "לחץ על 'הגשת מועמדות חדשה' כדי להתחיל לנהל משרות וליצור מדריכי הכנה עם AI.",
+        empty_title: "ברוכים הבאים ל-Job Tracker!",
+        empty_desc: "נהל את כל המועמדויות, גרסאות קורות החיים וההכנה לראיונות ב-AI במקום אחד מסודר ומאובטח.",
+        how_it_works_title: "איך זה עובד ב-4 שלבים פשוטים?",
+        step1_title: "1. ניהול מסמכים וגרסאות קו\"ח",
+        step1_desc: "שמור גרסאות קו\"ח מותאמות (Full-Stack, Backend), גיליונות ציונים ו-Cover Letters עם קישורי Drive מהירים והיסטוריית שינויים.",
+        step2_title: "2. הדבקת משרה וניתוח AI",
+        step2_desc: "הדבק תיאור משרה מלינקדאין או מאתר החברה וקבל זיהוי אוטומטי של החברה, התפקיד וציון התאמה (Match Score) מול הקו\"ח שלך.",
+        step3_title: "3. הכנה ממוקדת לראיון",
+        step3_desc: "קבל נושאי חובה טכניים (MUST PREPARE), נושאי בונוס (GOOD TO KNOW) וטיפים אישיים לפרויקטים שמומלץ להדגיש בראיון.",
+        step4_title: "4. מעקב ושליטה בשיחת טלפון",
+        step4_desc: "מקבלים טלפון מצוות הגיוס? פותחים מיד את המערכת ויודעים בדיוק: מה המוצר של החברה, מה התפקיד ומה להדגיש – בלי להתרוצץ ולחפש מודעות שנמחקו מהרשת!",
+        load_demo_btn: "רוצה לראות איך זה עובד? (טען נתוני דוגמה)",
+        guest_explore_btn: "התנסה בדמו ללא הרשמה",
+        guide_btn: "איך זה עובד?",
+        demo_banner_title: "🔎 מצב הדגמה פעיל (נתוני דוגמה)",
+        demo_banner_desc: "נטענו נתוני דוגמה: 2 מסמכים, מועמדות פעילה וסינתזת הכנה לראיון ב-AI. לחץ על המשרה בטבלה לצפייה, או נקה את הדמו בכל רגע.",
+        clear_demo_btn: "נקה נתוני דוגמה והתחל לעבוד",
         modal_job_title: "הוספת מועמדות חדשה",
         ai_autofill_title: "מילוי חכם באמצעות AI",
         ai_autofill_desc: "הדבק את תיאור המשרה (Job Description), וה-AI ינתח מול קורות החיים שלך, יחשב ציון התאמה, וימלא עבורך מדריך הכנה מקיף לראיון.",
@@ -382,6 +412,14 @@ function setLanguage(lang) {
         siteLangSelect.value = lang;
     }
 
+    // If demo mode is active, reload sample data in the new language
+    if (isDemoMode && typeof getSampleData === 'function') {
+        const sample = getSampleData(lang);
+        jobs = [...sample.jobs];
+        documents = [...sample.documents];
+        reminders = [...sample.reminders];
+    }
+
     // Refresh UI components
     if (typeof renderStatusFilters === 'function') renderStatusFilters();
     if (typeof renderJobs === 'function') renderJobs();
@@ -402,6 +440,9 @@ let currentUser = null;
 let jobs = [];
 let documents = [];
 let reminders = [];
+
+let isDemoMode = false;
+let realUserDataBackup = { jobs: [], documents: [], reminders: [] };
 
 let currentEditingId = null;
 let currentSortColumn = 'date';
@@ -467,6 +508,12 @@ const emptyState = document.getElementById('emptyState');
 const searchInput = document.getElementById('searchInput');
 const showArchivedToggle = document.getElementById('showArchivedToggle');
 const statusFiltersContainer = document.getElementById('statusFilters');
+
+// Demo & Onboarding Elements
+const demoBanner = document.getElementById('demoBanner');
+const loadDemoBtn = document.getElementById('loadDemoBtn');
+const emptyNewJobBtn = document.getElementById('emptyNewJobBtn');
+const clearDemoBtn = document.getElementById('clearDemoBtn');
 
 // View Modal Elements
 const viewModal = document.getElementById('viewModal');
@@ -617,6 +664,9 @@ function setAuthMode(mode) {
         
         if (consentGroup) consentGroup.style.display = 'none';
         if (privacyConsent) privacyConsent.required = false;
+        if (openForgotPasswordBtn && openForgotPasswordBtn.parentElement) {
+            openForgotPasswordBtn.parentElement.style.display = 'flex';
+        }
     } else {
         tabSignUp.classList.add('active');
         tabLogin.classList.remove('active');
@@ -625,6 +675,9 @@ function setAuthMode(mode) {
         
         if (consentGroup) consentGroup.style.display = 'flex';
         if (privacyConsent) privacyConsent.required = true;
+        if (openForgotPasswordBtn && openForgotPasswordBtn.parentElement) {
+            openForgotPasswordBtn.parentElement.style.display = 'none';
+        }
     }
 }
 
@@ -815,6 +868,186 @@ async function loadAllData() {
     } catch (err) {
         console.error('Failed to load data:', err);
     }
+}
+
+// ==========================================
+// DEMO MODE & ONBOARDING SAMPLE DATA
+// ==========================================
+function getSampleData(lang = currentLang) {
+    const isHe = (lang === 'he');
+    const today = new Date().toISOString().split('T')[0];
+
+    return {
+        documents: [
+            {
+                id: 'demo_doc_1',
+                type: 'CV',
+                version: isHe ? 'CV - מפתח Full-Stack (גרסה 2.4)' : 'CV - Full-Stack Developer (v2.4)',
+                date: today,
+                link: 'https://drive.google.com',
+                changeLog: isHe ? 'הדגשת פרויקטים ב-React, Node.js ומסדי נתונים רלציוניים' : 'Highlighted React, Node.js & PostgreSQL distributed projects',
+                parsedText: isHe 
+                    ? 'יונתן כהן - מהנדס תוכנה / בוגר מדעי המחשב. ניסיון בפיתוח מערכות Full-Stack ב-React, Node.js, Express, PostgreSQL, Docker, Git. פיתוח REST APIs, עבודה עם ענן ומיקרו-שירותים.' 
+                    : 'John Doe - Software Engineer / CS Graduate. Experience building full-stack web applications with React, Node.js, Express, PostgreSQL, Docker, and Git. REST APIs, cloud services, and microservices architecture.'
+            },
+            {
+                id: 'demo_doc_2',
+                type: 'Transcript',
+                version: isHe ? 'גיליון ציונים אקדמי - מדעי המחשב' : 'Academic Transcript - Computer Science',
+                date: today,
+                link: 'https://drive.google.com',
+                changeLog: isHe ? 'ממוצע 88 - קורסי מערכות הפעלה, מבני נתונים ואלגוריתמים' : 'GPA 88 - Operating Systems, Data Structures & Algorithms',
+                parsedText: ''
+            }
+        ],
+        jobs: [
+            {
+                id: 'demo_job_1',
+                company: 'CyberGuard Innovations',
+                title: isHe ? 'Junior Full-Stack Engineer (סטודנט / ג\'וניור)' : 'Junior Full-Stack Engineer (Student / Junior)',
+                location: isHe ? 'תל אביב (היברידי)' : 'Tel Aviv (Hybrid)',
+                date: today,
+                cvVersion: isHe ? 'CV - מפתח Full-Stack (גרסה 2.4)' : 'CV - Full-Stack Developer (v2.4)',
+                status: 'Screening (Phone/HR)',
+                referral: isHe ? 'דניאל כהן (Tech Lead)' : 'Daniel Cohen (Tech Lead)',
+                companyProduct: isHe ? 'פלטפורמת Cloud Security ו-Zero Trust לארגוני Enterprise' : 'Enterprise Cloud Security & Zero-Trust Infrastructure Platform',
+                jdSummary: isHe ? 'פיתוח שירותי Backend ב-Node.js/TypeScript ו-Microservices, וממשקי Frontend ב-React לניהול מדיניות אבטחה בענן.' : 'Developing backend microservices in Node.js/TypeScript and modern UI in React for cloud security policy management.',
+                mustHave: isHe 
+                    ? `1. מבני נתונים ואלגוריתמים (Trees, HashMaps, Caching)
+2. הבנה עמוקה ב-Asynchronous JS / TypeScript
+3. עבודה עם מסדי נתונים רלציוניים (PostgreSQL / SQL Indexing)
+4. ארכיטקטורת REST APIs ואימות Token-based (JWT/OAuth)`
+                    : `1. Core Data Structures & Algorithms (Trees, HashMaps, Caching)
+2. Deep understanding of Asynchronous JS / TypeScript
+3. Relational databases (PostgreSQL & Query optimization)
+4. RESTful API design & JWT/OAuth security patterns`,
+                goodToHave: isHe
+                    ? `1. היכרות עם Docker ו-CI/CD Pipelines
+2. ניסיון בסביבת ענן (AWS / GCP / Azure)
+3. היכרות בסיסית עם עקרונות אבטחת מידע (OWASP Top 10)`
+                    : `1. Docker containerization & CI/CD workflows
+2. Cloud infrastructure fundamentals (AWS / GCP)
+3. Basic knowledge of OWASP Top 10 security standards`,
+                notes: isHe
+                    ? `💡 טיפים לשיחת ה-HR והראיון:
+- להדגיש את פרויקט הגמר שעסק במערכות מבוזרות ומסדי נתונים.
+- להבליט יכולת למידה עצמאית ומוטיבציה גבוהה להשתלב בתחום ה-Cyber Security.
+- לשאול את המראיין על תהליך ה-Code Review ותרבות הפיתוח בצוות.`
+                    : `💡 Tailored Pitch & Prep Strategy:
+- Highlight the distributed caching and database optimization coursework.
+- Emphasize proactive problem solving and strong desire to specialize in cloud infrastructure.
+- Inquire about the team's engineering culture and automated testing pipeline.`,
+                matchScore: '88%',
+                matchRationale: isHe
+                    ? 'התאמה גבוהה מאוד (88%): למועמד רקע אקדמי מוכח במדעי המחשב, ניסיון מעשי בפרויקטי Full-Stack ב-React ו-Node.js/SQL. מומלץ לחזק לקראת הראיון מושגי אבטחת ענן ו-Docker.'
+                    : 'Strong 88% Match: Solid CS foundations with hands-on full-stack development experience. Prioritize reviewing cloud security concepts and container basics before the technical round.',
+                jdLink: 'https://linkedin.com/jobs/sample',
+                archived: false
+            }
+        ],
+        reminders: [
+            {
+                id: 'demo_rem_1',
+                text: isHe ? '📞 לעבור על נקודות ה-Must Prepare לקראת שיחת HR ב-CyberGuard השבוע' : '📞 Review MUST PREPARE notes before CyberGuard HR screening call this week',
+                date: today,
+                completed: false
+            }
+        ]
+    };
+}
+
+function loadSampleData() {
+    if (!isDemoMode) {
+        realUserDataBackup = {
+            jobs: [...jobs],
+            documents: [...documents],
+            reminders: [...reminders]
+        };
+    }
+    isDemoMode = true;
+    const sample = getSampleData(currentLang);
+    jobs = [...sample.jobs];
+    documents = [...sample.documents];
+    reminders = [...sample.reminders];
+
+    if (demoBanner) demoBanner.style.display = 'flex';
+    if (emptyState) emptyState.style.display = 'none';
+
+    renderJobs();
+    renderDocs();
+    renderRemindersUI();
+    updateStats();
+    if (typeof updateAiCvSelect === 'function') updateAiCvSelect();
+
+    if (window.va) {
+        window.va('event', { name: 'demo_mode_loaded', lang: currentLang });
+    }
+}
+
+function clearSampleData() {
+    if (!isDemoMode) return;
+    isDemoMode = false;
+    jobs = [...(realUserDataBackup.jobs || [])];
+    documents = [...(realUserDataBackup.documents || [])];
+    reminders = [...(realUserDataBackup.reminders || [])];
+
+    if (demoBanner) demoBanner.style.display = 'none';
+
+    renderJobs();
+    renderDocs();
+    renderRemindersUI();
+    updateStats();
+    if (typeof updateAiCvSelect === 'function') updateAiCvSelect();
+}
+
+// Hook Demo and Onboarding Buttons
+const openGuideBtn = document.getElementById('openGuideBtn');
+const guideModal = document.getElementById('guideModal');
+const closeGuideModalBtn = document.getElementById('closeGuideModalBtn');
+const closeGuideModalActionBtn = document.getElementById('closeGuideModalActionBtn');
+const modalLoadDemoBtn = document.getElementById('modalLoadDemoBtn');
+
+if (openGuideBtn) {
+    openGuideBtn.addEventListener('click', () => {
+        if (guideModal) guideModal.classList.add('active');
+    });
+}
+
+if (closeGuideModalBtn) {
+    closeGuideModalBtn.addEventListener('click', () => {
+        if (guideModal) guideModal.classList.remove('active');
+    });
+}
+
+if (closeGuideModalActionBtn) {
+    closeGuideModalActionBtn.addEventListener('click', () => {
+        if (guideModal) guideModal.classList.remove('active');
+    });
+}
+
+if (modalLoadDemoBtn) {
+    modalLoadDemoBtn.addEventListener('click', () => {
+        if (guideModal) guideModal.classList.remove('active');
+        loadSampleData();
+    });
+}
+
+if (loadDemoBtn) {
+    loadDemoBtn.addEventListener('click', () => {
+        loadSampleData();
+    });
+}
+
+if (clearDemoBtn) {
+    clearDemoBtn.addEventListener('click', () => {
+        clearSampleData();
+    });
+}
+
+if (emptyNewJobBtn) {
+    emptyNewJobBtn.addEventListener('click', () => {
+        if (openModalBtn) openModalBtn.click();
+    });
 }
 
 // Privacy Policy & Account Erasure Handlers
@@ -1225,6 +1458,7 @@ function closeDocModal() {
 if (docForm) {
     docForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (isDemoMode) clearSampleData();
         
         let parsedText = '';
         const fileInput = document.getElementById('docFile');
@@ -1334,7 +1568,7 @@ window.deleteDoc = async function(id) {
         documents = documents.filter(d => d.id !== id);
         renderDocs();
 
-        if (supabaseClient && currentUser) {
+        if (supabaseClient && currentUser && !isDemoMode) {
             try {
                 await supabaseClient.from('documents').delete().eq('id', id);
             } catch (err) {
@@ -1460,7 +1694,7 @@ function renderRemindersUI() {
         cb.addEventListener('change', async (e) => {
             rem.completed = e.target.checked;
             renderRemindersUI();
-            if (supabaseClient && currentUser) {
+            if (supabaseClient && currentUser && !isDemoMode) {
                 await supabaseClient.from('reminders').update({ completed: rem.completed }).eq('id', rem.id);
             }
         });
@@ -1470,7 +1704,7 @@ function renderRemindersUI() {
             const targetId = rem.id;
             reminders = reminders.filter(r => r.id !== targetId);
             renderRemindersUI();
-            if (supabaseClient && currentUser) {
+            if (supabaseClient && currentUser && !isDemoMode) {
                 await supabaseClient.from('reminders').delete().eq('id', targetId);
             }
         });
@@ -1482,6 +1716,7 @@ function renderRemindersUI() {
 if (reminderForm) {
     reminderForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (isDemoMode) clearSampleData();
         const text = reminderInput.value.trim();
         if (!text) return;
 
@@ -1497,7 +1732,7 @@ if (reminderForm) {
         renderRemindersUI();
         reminderForm.reset();
 
-        if (supabaseClient && currentUser) {
+        if (supabaseClient && currentUser && !isDemoMode) {
             await supabaseClient.from('reminders').insert([newReminder]);
         }
     });
@@ -1641,6 +1876,7 @@ function updateStats() {
 if (jobForm) {
     jobForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (isDemoMode) clearSampleData();
         
         const jobData = {
             id: currentEditingId || ('job_' + Date.now()),
@@ -1819,7 +2055,7 @@ if (deleteJobBtn) {
             updateStats();
             viewModal.classList.remove('active');
 
-            if (supabaseClient && currentUser) {
+            if (supabaseClient && currentUser && !isDemoMode) {
                 await supabaseClient.from('jobs').delete().eq('id', targetId);
             }
         }
@@ -1833,7 +2069,7 @@ window.archiveJob = async function(id) {
         renderJobs(searchInput ? searchInput.value : '');
         updateStats();
 
-        if (supabaseClient && currentUser) {
+        if (supabaseClient && currentUser && !isDemoMode) {
             await supabaseClient.from('jobs').update({ archived: job.archived }).eq('id', id);
         }
     }

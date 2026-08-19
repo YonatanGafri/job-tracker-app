@@ -32,6 +32,9 @@
                 <p data-i18n="app_tagline">Application pipeline & interview preparation hub.</p>
             </div>
             <div class="header-actions">
+                <button id="openGuideBtn" class="btn-secondary" style="padding: 0.4rem 0.75rem; font-size: 0.85rem; display: flex; align-items: center; gap: 0.35rem;" title="How It Works / מדריך שימוש">
+                    <ion-icon name="help-circle-outline"></ion-icon> <span data-i18n="guide_btn">איך זה עובד?</span>
+                </button>
                 <button id="langToggleBtn" class="btn-secondary lang-toggle-btn" title="Switch Language / החלף שפה">
                     <ion-icon name="globe-outline"></ion-icon>
                     <span id="langBtnText">עברית</span>
@@ -246,10 +249,69 @@
                     </table>
                 </div>
                 
+                <div id="demoBanner" class="demo-banner glass-panel" style="display: none;">
+                    <div class="demo-banner-content">
+                        <div class="demo-banner-badge">
+                            <ion-icon name="sparkles"></ion-icon>
+                        </div>
+                        <div>
+                            <strong data-i18n="demo_banner_title">Demo Mode Active (Sample Data)</strong>
+                            <p data-i18n="demo_banner_desc">Exploring sample CVs, an active application, and an AI prep guide. Click the job below to view details, or clear demo data anytime.</p>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-secondary btn-sm clear-demo-btn" id="clearDemoBtn">
+                        <ion-icon name="trash-outline"></ion-icon> <span data-i18n="clear_demo_btn">Clear Demo Data</span>
+                    </button>
+                </div>
+
                 <div id="emptyState" class="empty-state">
-                    <ion-icon name="folder-open-outline"></ion-icon>
-                    <h3 data-i18n="empty_title">No applications yet</h3>
-                    <p data-i18n="empty_desc">Click 'New Application' to start tracking your applications and generating AI prep guides.</p>
+                    <div class="empty-state-header">
+                        <div class="empty-icon-wrapper">
+                            <ion-icon name="rocket-outline"></ion-icon>
+                        </div>
+                        <h3 data-i18n="empty_title">Welcome to Job Tracker!</h3>
+                        <p data-i18n="empty_desc">Track your job search lifecycle from application to offer with smart AI preparation.</p>
+                    </div>
+
+                    <!-- 4-Step Interactive Workflow Guide -->
+                    <div class="onboarding-guide">
+                        <h4 class="onboarding-guide-title" data-i18n="how_it_works_title">How It Works in 4 Simple Steps</h4>
+                        <div class="onboarding-steps-grid">
+                            <div class="step-card glass-panel">
+                                <div class="step-badge">1</div>
+                                <div class="step-icon"><ion-icon name="document-text-outline"></ion-icon></div>
+                                <h5 data-i18n="step1_title">1. Document Versions & CVs</h5>
+                                <p data-i18n="step1_desc">Store tailored CVs, transcripts & cover letters with fast Drive links and version changelogs.</p>
+                            </div>
+                            <div class="step-card glass-panel">
+                                <div class="step-badge">2</div>
+                                <div class="step-icon"><ion-icon name="sparkles-outline"></ion-icon></div>
+                                <h5 data-i18n="step2_title">2. Paste Job & AI Match</h5>
+                                <p data-i18n="step2_desc">Paste raw job descriptions to extract company details and compute an instant CV match score.</p>
+                            </div>
+                            <div class="step-card glass-panel">
+                                <div class="step-badge">3</div>
+                                <div class="step-icon"><ion-icon name="color-wand-outline"></ion-icon></div>
+                                <h5 data-i18n="step3_title">3. Targeted Interview Prep</h5>
+                                <p data-i18n="step3_desc">Receive MUST PREPARE technical topics, GOOD TO KNOW bonus points, and tailored pitch strategies.</p>
+                            </div>
+                            <div class="step-card glass-panel highlight-step">
+                                <div class="step-badge">4</div>
+                                <div class="step-icon"><ion-icon name="call-outline"></ion-icon></div>
+                                <h5 data-i18n="step4_title">4. Recruiter Call Readiness</h5>
+                                <p data-i18n="step4_desc">Recruiter called unexpectedly? Open the app in 2 seconds to know the product, role & key talking points!</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="empty-state-actions">
+                        <button type="button" id="loadDemoBtn" class="btn-primary load-demo-btn">
+                            <ion-icon name="sparkles"></ion-icon> <span data-i18n="load_demo_btn">See How It Works (Load Demo)</span>
+                        </button>
+                        <button type="button" id="emptyNewJobBtn" class="btn-secondary">
+                            <ion-icon name="add-outline"></ion-icon> <span data-i18n="new_application">New Application</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </main>
@@ -484,6 +546,55 @@
         </div>
     </div>
 
+    <!-- How It Works / Onboarding Guide Modal -->
+    <div id="guideModal" class="modal-overlay">
+        <div class="modal-content glass-panel" style="max-width: 840px;">
+            <div class="modal-header">
+                <h2><ion-icon name="rocket-outline" style="color: var(--primary);"></ion-icon> <span data-i18n="how_it_works_title">How It Works in 4 Simple Steps</span></h2>
+                <button class="close-btn" id="closeGuideModalBtn"><ion-icon name="close-outline"></ion-icon></button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 0.92rem; color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.5;" data-i18n="empty_desc">
+                    Manage your applications, tailored CVs, and AI interview prep guides all in one secure workspace.
+                </p>
+                <div class="onboarding-steps-grid">
+                    <div class="step-card glass-panel">
+                        <div class="step-badge">1</div>
+                        <div class="step-icon"><ion-icon name="document-text-outline"></ion-icon></div>
+                        <h5 data-i18n="step1_title">1. Document Versions & CVs</h5>
+                        <p data-i18n="step1_desc">Store tailored CVs, transcripts & cover letters with fast Drive links and version changelogs.</p>
+                    </div>
+                    <div class="step-card glass-panel">
+                        <div class="step-badge">2</div>
+                        <div class="step-icon"><ion-icon name="sparkles-outline"></ion-icon></div>
+                        <h5 data-i18n="step2_title">2. Paste Job & AI Match</h5>
+                        <p data-i18n="step2_desc">Paste raw job descriptions to extract company details and compute an instant CV match score.</p>
+                    </div>
+                    <div class="step-card glass-panel">
+                        <div class="step-badge">3</div>
+                        <div class="step-icon"><ion-icon name="color-wand-outline"></ion-icon></div>
+                        <h5 data-i18n="step3_title">3. Targeted Interview Prep</h5>
+                        <p data-i18n="step3_desc">Receive MUST PREPARE technical topics, GOOD TO KNOW bonus points, and tailored pitch strategies.</p>
+                    </div>
+                    <div class="step-card glass-panel highlight-step">
+                        <div class="step-badge">4</div>
+                        <div class="step-icon"><ion-icon name="call-outline"></ion-icon></div>
+                        <h5 data-i18n="step4_title">4. Recruiter Call Readiness</h5>
+                        <p data-i18n="step4_desc">Recruiter called unexpectedly? Open the app in 2 seconds to know the product, role & key talking points!</p>
+                    </div>
+                </div>
+                <div class="empty-state-actions" style="margin-top: 2rem;">
+                    <button type="button" id="modalLoadDemoBtn" class="btn-primary load-demo-btn">
+                        <ion-icon name="sparkles"></ion-icon> <span data-i18n="load_demo_btn">See How It Works (Load Demo)</span>
+                    </button>
+                    <button type="button" id="closeGuideModalActionBtn" class="btn-secondary">
+                        <span data-i18n="cancel_btn">Close</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Auth Modal (Login / Sign Up) -->
     <div id="authModal" class="modal-overlay active">
         <div class="modal-content glass-panel auth-card">
@@ -520,12 +631,12 @@
                     <label for="authEmail" data-i18n="email_address">Email Address</label>
                     <input type="email" id="authEmail" required placeholder="your.email@example.com" autocomplete="email" dir="ltr">
                 </div>
-                <div class="input-group">
+                <div class="input-group" style="margin-top: 0.85rem;">
                     <label for="authPassword" data-i18n="password_label">Password</label>
                     <input type="password" id="authPassword" required placeholder="••••••••" autocomplete="current-password" minlength="6" dir="ltr">
                 </div>
 
-                <div style="display: flex; justify-content: flex-end; margin-top: -0.4rem; margin-bottom: 0.8rem;">
+                <div style="display: flex; justify-content: flex-end; margin-top: 0.5rem; margin-bottom: 0.85rem;">
                     <a href="#" id="openForgotPasswordBtn" style="font-size: 0.78rem; color: var(--primary); text-decoration: underline;" data-i18n="forgot_password_link">Forgot Password?</a>
                 </div>
 
