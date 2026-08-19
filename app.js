@@ -358,7 +358,20 @@ const TRANSLATIONS = {
     }
 };
 
-let currentLang = localStorage.getItem('appLang') || 'he';
+function detectInitialLanguage() {
+    const saved = localStorage.getItem('appLang');
+    if (saved) return saved;
+
+    const languages = navigator.languages || [navigator.language || navigator.userLanguage || ''];
+    for (const lang of languages) {
+        if (lang && lang.toLowerCase().startsWith('he')) {
+            return 'he';
+        }
+    }
+    return 'en';
+}
+
+let currentLang = detectInitialLanguage();
 let aiOutputLang = localStorage.getItem('aiLang') || 'auto';
 
 function t(key, defaultVal = '') {
