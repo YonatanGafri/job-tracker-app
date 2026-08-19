@@ -182,7 +182,12 @@ const TRANSLATIONS = {
         doc_type_transcript_short: "Transcript",
         doc_type_cover_letter_short: "Cover Letter",
         doc_type_certificate_short: "Certificate",
-        doc_type_other_short: "Other"
+        doc_type_other_short: "Other",
+        ai_error_auth_required: "You must be logged in to use the AI assistant.",
+        ai_error_minute_limit: "Rate limit reached (max 3 requests per minute). Please wait a minute and try again.",
+        ai_error_daily_limit: "Daily AI limit reached (25 requests per day). Add your own free Gemini API key in Settings to continue without limits.",
+        ai_error_pool_full: "The public community pool is temporarily full. You can enter your own free Gemini API key in Settings to continue immediately.",
+        got_it_btn: "Got It"
     },
     he: {
         app_title: "ניהול משרות וקורות חיים",
@@ -354,7 +359,12 @@ const TRANSLATIONS = {
         doc_type_transcript_short: "גיליון ציונים",
         doc_type_cover_letter_short: "מכתב מקדים",
         doc_type_certificate_short: "תעודה / תיק עבודות",
-        doc_type_other_short: "אחר"
+        doc_type_other_short: "אחר",
+        ai_error_auth_required: "יש להתחבר למערכת כדי להשתמש בניתוח ה-AI.",
+        ai_error_minute_limit: "נשלחו יותר מדי בקשות בזמן קצר (הגבלה של 3 בדקה). אנא המתן דקה ונסה שוב.",
+        ai_error_daily_limit: "הגעת למכסה היומית (25 ניתוחים ביום). תוכל להוסיף מפתח Gemini אישי בחינם בהגדרות כדי להמשיך ללא הגבלה.",
+        ai_error_pool_full: "השרת הציבורי עמוס כרגע (המכסה החינמית מוצתה). כדי להמשיך להשתמש מיד, הירשם בחינם ל-Gemini ושם את המפתח הפרטי שלך בהגדרות (Settings).",
+        got_it_btn: "הבנתי, סגור"
     }
 };
 
@@ -1020,8 +1030,25 @@ const closeGuideModalBtn = document.getElementById('closeGuideModalBtn');
 const closeGuideModalActionBtn = document.getElementById('closeGuideModalActionBtn');
 const modalLoadDemoBtn = document.getElementById('modalLoadDemoBtn');
 
+function updateGuideModalButtons() {
+    const hasRealJobs = (jobs && jobs.length > 0);
+    if (modalLoadDemoBtn) {
+        modalLoadDemoBtn.style.display = hasRealJobs ? 'none' : 'inline-flex';
+    }
+    if (closeGuideModalActionBtn) {
+        if (hasRealJobs) {
+            closeGuideModalActionBtn.classList.remove('btn-secondary');
+            closeGuideModalActionBtn.classList.add('btn-primary');
+        } else {
+            closeGuideModalActionBtn.classList.remove('btn-primary');
+            closeGuideModalActionBtn.classList.add('btn-secondary');
+        }
+    }
+}
+
 if (openGuideBtn) {
     openGuideBtn.addEventListener('click', () => {
+        updateGuideModalButtons();
         if (guideModal) guideModal.classList.add('active');
     });
 }
@@ -1604,6 +1631,8 @@ function getLocalizedDocType(type) {
 }
 
 function renderDocs() {
+    const docsCountBadge = document.getElementById('docsCountBadge');
+    if (docsCountBadge) docsCountBadge.textContent = documents ? documents.length : 0;
     if (!docsList) return;
     docsList.innerHTML = '';
     
@@ -1669,6 +1698,8 @@ function renderDocs() {
 }
 
 function renderRemindersUI() {
+    const remindersCountBadge = document.getElementById('remindersCountBadge');
+    if (remindersCountBadge) remindersCountBadge.textContent = reminders ? reminders.length : 0;
     if (!remindersList) return;
     remindersList.innerHTML = '';
 
@@ -2658,30 +2689,54 @@ Return ONLY valid JSON, nothing else, no markdown fences.`;
                     })
                 });
             } else {
-                // Free Tier: Proxy via Vercel Backend
+                // Free Tier: Proxy via Vercel Backend with Supabase JWT Auth
+                let authToken = '';
+                if (supabaseClient && supabaseClient.auth) {
+                    try {
+                        const { data: sessionData } = await supabaseClient.auth.getSession();
+                        authToken = sessionData?.session?.access_token || '';
+                    } catch (e) {
+                        console.warn('Could not fetch Supabase session token:', e);
+                    }
+                }
+
                 res = await fetch('/api/gemini', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
                     body: JSON.stringify({ prompt: prompt })
                 });
             }
 
             if (!res.ok) {
-                const isRateLimit = res.status === 429 || res.status === 503;
-                if (!userGeminiKey && isRateLimit) {
-                    throw new Error('COMMUNITY_POOL_FULL');
-                }
+                let errCode = '';
                 let errMessage = 'API Error';
                 try {
                     const errText = await res.text();
                     try {
                         const err = JSON.parse(errText);
+                        errCode = err.code || '';
                         errMessage = err.error?.message || err.error || err.message || `API Error: ${errText}`;
                     } catch(e) {
                         errMessage = `HTTP ${res.status} ${res.statusText}: ${errText}`;
                     }
                 } catch(e) {
                     errMessage = `HTTP ${res.status} ${res.statusText}`;
+                }
+
+                if (res.status === 401 || errCode === 'AUTH_REQUIRED') {
+                    throw new Error('AUTH_REQUIRED');
+                }
+                if (errCode === 'RATE_LIMIT_MINUTE_EXCEEDED') {
+                    throw new Error('RATE_LIMIT_MINUTE_EXCEEDED');
+                }
+                if (errCode === 'RATE_LIMIT_DAILY_EXCEEDED') {
+                    throw new Error('RATE_LIMIT_DAILY_EXCEEDED');
+                }
+                if (errCode === 'COMMUNITY_POOL_FULL' || (!userGeminiKey && (res.status === 429 || res.status === 503))) {
+                    throw new Error('COMMUNITY_POOL_FULL');
                 }
                 throw new Error(errMessage);
             }
@@ -2731,8 +2786,15 @@ Return ONLY valid JSON, nothing else, no markdown fences.`;
 
         } catch (error) {
             console.error(error);
-            if (error.message === 'COMMUNITY_POOL_FULL') {
-                alert('השרת הציבורי עמוס כרגע (המכסה החינמית מוצתה). כדי להמשיך להשתמש מיד, הירשם בחינם ל-Gemini ושם את המפתח הפרטי שלך בהגדרות (Settings).');
+            const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
+            if (error.message === 'AUTH_REQUIRED') {
+                alert(t.ai_error_auth_required || 'You must be logged in to use the AI assistant.');
+            } else if (error.message === 'RATE_LIMIT_MINUTE_EXCEEDED') {
+                alert(t.ai_error_minute_limit || 'Too many requests. Please wait a minute and try again.');
+            } else if (error.message === 'RATE_LIMIT_DAILY_EXCEEDED') {
+                alert(t.ai_error_daily_limit || 'Daily AI limit reached (25 requests per day). Add your own free Gemini API key in Settings to continue without limits.');
+            } else if (error.message === 'COMMUNITY_POOL_FULL') {
+                alert(t.ai_error_pool_full || 'The public community pool is temporarily full. You can enter your own free Gemini API key in Settings to continue immediately.');
             } else {
                 alert('AI Generation failed: ' + error.message);
             }
@@ -2745,8 +2807,48 @@ Return ONLY valid JSON, nothing else, no markdown fences.`;
 }
 
 // ==========================================
+// COLLAPSIBLE SECTIONS (DOCS & REMINDERS)
+// ==========================================
+function initCollapsibleSections() {
+    const docsSection = document.getElementById('docsSection');
+    const toggleDocsBtn = document.getElementById('toggleDocsBtn');
+    const toggleDocsHeader = document.getElementById('toggleDocsHeader');
+
+    const remindersSection = document.getElementById('remindersSection');
+    const toggleRemindersBtn = document.getElementById('toggleRemindersBtn');
+    const toggleRemindersHeader = document.getElementById('toggleRemindersHeader');
+
+    // Restore saved collapse states from LocalStorage
+    if (localStorage.getItem('docsCollapsed') === 'true') {
+        if (docsSection) docsSection.classList.add('section-collapsed');
+    }
+    if (localStorage.getItem('remindersCollapsed') === 'true') {
+        if (remindersSection) remindersSection.classList.add('section-collapsed');
+    }
+
+    function toggleDocs() {
+        if (!docsSection) return;
+        const isCollapsed = docsSection.classList.toggle('section-collapsed');
+        localStorage.setItem('docsCollapsed', isCollapsed ? 'true' : 'false');
+    }
+
+    function toggleReminders() {
+        if (!remindersSection) return;
+        const isCollapsed = remindersSection.classList.toggle('section-collapsed');
+        localStorage.setItem('remindersCollapsed', isCollapsed ? 'true' : 'false');
+    }
+
+    if (toggleDocsBtn) toggleDocsBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleDocs(); });
+    if (toggleDocsHeader) toggleDocsHeader.addEventListener('click', toggleDocs);
+
+    if (toggleRemindersBtn) toggleRemindersBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleReminders(); });
+    if (toggleRemindersHeader) toggleRemindersHeader.addEventListener('click', toggleReminders);
+}
+
+// ==========================================
 // INITIALIZE APPLICATION & LANGUAGE
 // ==========================================
+initCollapsibleSections();
 setLanguage(currentLang);
 checkAuth();
 

@@ -178,36 +178,56 @@
         </div>
 
         <!-- Documents Hub -->
-        <div class="docs-container glass-panel">
-            <div class="header-flex" style="display: flex; justify-content: space-between; align-items: center;">
-                <h2><ion-icon name="document-text"></ion-icon> <span data-i18n="my_documents">My Documents</span></h2>
-                <button class="btn-secondary" id="openDocModalBtn" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; display: flex; align-items: center; gap: 0.3rem;">
-                    <ion-icon name="add-circle-outline"></ion-icon> <span data-i18n="add_document">Add Document</span>
-                </button>
+        <div class="docs-container glass-panel" id="docsSection">
+            <div class="header-flex">
+                <div class="section-title-wrap" id="toggleDocsHeader" style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; user-select: none;">
+                    <h2><ion-icon name="document-text"></ion-icon> <span data-i18n="my_documents">My Documents</span></h2>
+                    <span class="collapse-badge" id="docsCountBadge">0</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <button class="btn-secondary" id="openDocModalBtn" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; display: flex; align-items: center; gap: 0.3rem;">
+                        <ion-icon name="add-circle-outline"></ion-icon> <span data-i18n="add_document">Add Document</span>
+                    </button>
+                    <button class="btn-secondary collapse-toggle-btn" id="toggleDocsBtn" style="padding: 0.4rem 0.6rem; font-size: 0.95rem;" title="Collapse / Expand">
+                        <ion-icon id="docsChevron" name="chevron-up-outline"></ion-icon>
+                    </button>
+                </div>
             </div>
-            <div class="docs-grid" id="docsList">
-                <!-- Docs will be injected here via JS -->
+            <div class="collapsible-body" id="docsCollapsibleBody">
+                <div class="docs-grid" id="docsList">
+                    <!-- Docs will be injected here via JS -->
+                </div>
             </div>
         </div>
 
         <!-- Reminders & Quick Notes Hub -->
-        <div class="reminders-container glass-panel">
-            <div class="header-flex" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <h2 style="display: flex; align-items: center; gap: 0.5rem; font-size: 1.25rem;">
-                    <ion-icon name="bookmark-outline" style="color: var(--accent-primary);"></ion-icon> <span data-i18n="reminders_title">Reminders & Quick Notes</span>
-                </h2>
-                <span style="font-size: 0.85rem; color: var(--text-secondary);" id="remindersCount">0 active</span>
+        <div class="reminders-container glass-panel" id="remindersSection">
+            <div class="header-flex">
+                <div class="section-title-wrap" id="toggleRemindersHeader" style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; user-select: none;">
+                    <h2 style="display: flex; align-items: center; gap: 0.5rem; font-size: 1.25rem;">
+                        <ion-icon name="bookmark-outline" style="color: var(--accent-primary);"></ion-icon> <span data-i18n="reminders_title">Reminders & Quick Notes</span>
+                    </h2>
+                    <span class="collapse-badge" id="remindersCountBadge">0</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                    <span style="font-size: 0.85rem; color: var(--text-secondary);" id="remindersCount">0 active</span>
+                    <button class="btn-secondary collapse-toggle-btn" id="toggleRemindersBtn" style="padding: 0.4rem 0.6rem; font-size: 0.95rem;" title="Collapse / Expand">
+                        <ion-icon id="remindersChevron" name="chevron-up-outline"></ion-icon>
+                    </button>
+                </div>
             </div>
             
-            <form id="reminderForm" class="reminder-form">
-                <input type="text" id="reminderInput" placeholder="Add a reminder (e.g. Follow up with Elad regarding Google, check status on Apple...)" data-i18n-placeholder="reminder_placeholder" required>
-                <button type="submit" class="btn-primary">
-                    <ion-icon name="add-outline"></ion-icon> <span data-i18n="add_note">Add Note</span>
-                </button>
-            </form>
+            <div class="collapsible-body" id="remindersCollapsibleBody">
+                <form id="reminderForm" class="reminder-form">
+                    <input type="text" id="reminderInput" placeholder="Add a reminder (e.g. Follow up with Elad regarding Google, check status on Apple...)" data-i18n-placeholder="reminder_placeholder" required>
+                    <button type="submit" class="btn-primary">
+                        <ion-icon name="add-outline"></ion-icon> <span data-i18n="add_note">Add Note</span>
+                    </button>
+                </form>
 
-            <div class="reminders-list" id="remindersList">
-                <!-- Reminders will be injected here via JS -->
+                <div class="reminders-list" id="remindersList">
+                    <!-- Reminders will be injected here via JS -->
+                </div>
             </div>
         </div>
 
@@ -607,7 +627,7 @@
                         <ion-icon name="sparkles"></ion-icon> <span data-i18n="load_demo_btn">See How It Works (Load Demo)</span>
                     </button>
                     <button type="button" id="closeGuideModalActionBtn" class="btn-secondary">
-                        <span data-i18n="cancel_btn">Close</span>
+                        <span data-i18n="got_it_btn">Got It</span>
                     </button>
                 </div>
             </div>

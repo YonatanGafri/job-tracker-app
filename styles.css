@@ -281,6 +281,64 @@ button {
 .docs-container, .reminders-container {
     padding: 1.5rem;
     margin-bottom: 1.75rem;
+    transition: padding 0.25s ease, margin-bottom 0.25s ease, box-shadow 0.25s ease;
+}
+
+.docs-container.section-collapsed,
+.reminders-container.section-collapsed {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.docs-container.section-collapsed .header-flex,
+.reminders-container.section-collapsed .header-flex {
+    margin-bottom: 0 !important;
+}
+
+.collapsible-body {
+    transition: opacity 0.2s ease;
+}
+
+.section-collapsed .collapsible-body {
+    display: none !important;
+}
+
+.collapse-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.collapse-toggle-btn ion-icon {
+    transition: transform 0.25s ease;
+}
+
+.section-collapsed .collapse-toggle-btn ion-icon {
+    transform: rotate(180deg);
+}
+
+.collapse-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    background: var(--bg-subtle);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    transition: background 0.2s, color 0.2s;
+}
+
+.section-collapsed .collapse-badge {
+    background: var(--primary-subtle, rgba(99, 102, 241, 0.1));
+    color: var(--primary);
+    border-color: var(--primary-border, rgba(99, 102, 241, 0.25));
 }
 
 .header-flex {
