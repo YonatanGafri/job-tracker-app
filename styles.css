@@ -1179,6 +1179,65 @@ html[dir="ltr"] .step-badge {
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
+/* Password Input Wrapper & Toggle Button */
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.password-input-wrapper input {
+    width: 100%;
+    padding-right: 2.5rem !important;
+}
+
+[dir="rtl"] .password-input-wrapper input {
+    padding-right: 0.8rem !important;
+    padding-left: 2.5rem !important;
+}
+
+.toggle-password-btn {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0.35rem;
+    color: var(--text-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    border-radius: var(--radius-sm);
+    transition: color 0.2s ease, background 0.2s ease;
+    z-index: 2;
+}
+
+[dir="rtl"] .toggle-password-btn {
+    right: auto;
+    left: 0.5rem;
+}
+
+.toggle-password-btn:hover {
+    color: var(--primary);
+    background: var(--bg-hover);
+}
+
+/* Instant Placeholder Disappearance On Focus */
+input::placeholder,
+textarea::placeholder {
+    transition: opacity 0.15s ease, color 0.15s ease;
+}
+
+input:focus::placeholder,
+textarea:focus::placeholder {
+    opacity: 0 !important;
+    color: transparent !important;
+}
+
 .synthesis-section {
     margin-top: 1.25rem;
     padding-top: 1rem;

@@ -95,7 +95,12 @@
                         </p>
                         <div class="input-group" style="margin-bottom: 1rem;">
                             <label for="geminiApiKey" data-i18n="api_key_label">Your Private Gemini API Key (Optional)</label>
-                            <input type="password" id="geminiApiKey" placeholder="AIzaSy..." dir="ltr">
+                            <div class="password-input-wrapper">
+                                <input type="password" id="geminiApiKey" placeholder="AIzaSy..." dir="ltr">
+                                <button type="button" class="toggle-password-btn" title="Show / Hide key">
+                                    <ion-icon name="eye-outline"></ion-icon>
+                                </button>
+                            </div>
                             <span style="font-size: 0.75rem; color: var(--text-tertiary); margin-top: 4px; display: block; line-height: 1.4;">
                                 <span data-i18n="get_free_key">Get a free key at</span> <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: var(--primary);">Google AI Studio</a>. 
                                 <br><br><strong>🔒 <span data-i18n="security_note_title">Security Note:</span></strong> <span data-i18n="security_note_text">Your key is saved locally in your browser. All AI requests bypass our servers and go straight to Google.</span>
@@ -134,11 +139,21 @@
                         </h3>
                         <div class="input-group" style="margin-bottom: 0.75rem;">
                             <label for="newPassword" data-i18n="new_password_label">New Password</label>
-                            <input type="password" id="newPassword" placeholder="••••••••" minlength="6" autocomplete="new-password" dir="ltr">
+                            <div class="password-input-wrapper">
+                                <input type="password" id="newPassword" placeholder="••••••••" minlength="6" autocomplete="new-password" dir="ltr">
+                                <button type="button" class="toggle-password-btn" title="Show / Hide password">
+                                    <ion-icon name="eye-outline"></ion-icon>
+                                </button>
+                            </div>
                         </div>
                         <div class="input-group" style="margin-bottom: 0.75rem;">
                             <label for="confirmNewPassword" data-i18n="confirm_new_password_label">Confirm New Password</label>
-                            <input type="password" id="confirmNewPassword" placeholder="••••••••" minlength="6" autocomplete="new-password" dir="ltr">
+                            <div class="password-input-wrapper">
+                                <input type="password" id="confirmNewPassword" placeholder="••••••••" minlength="6" autocomplete="new-password" dir="ltr">
+                                <button type="button" class="toggle-password-btn" title="Show / Hide password">
+                                    <ion-icon name="eye-outline"></ion-icon>
+                                </button>
+                            </div>
                         </div>
                         <div id="changePasswordStatus" style="display: none; font-size: 0.8rem; margin-bottom: 0.75rem; padding: 0.4rem 0.6rem; border-radius: var(--radius-sm);"></div>
                         <button type="button" class="btn-secondary" id="changePasswordBtn" style="font-size: 0.82rem; padding: 0.4rem 0.8rem;">
@@ -672,7 +687,12 @@
                 </div>
                 <div class="input-group" style="margin-top: 0.85rem;">
                     <label for="authPassword" data-i18n="password_label">Password</label>
-                    <input type="password" id="authPassword" required placeholder="••••••••" autocomplete="current-password" minlength="6" dir="ltr">
+                    <div class="password-input-wrapper">
+                        <input type="password" id="authPassword" required placeholder="••••••••" autocomplete="current-password" minlength="6" dir="ltr">
+                        <button type="button" class="toggle-password-btn" title="Show / Hide password">
+                            <ion-icon name="eye-outline"></ion-icon>
+                        </button>
+                    </div>
                 </div>
 
                 <div style="display: flex; justify-content: flex-end; margin-top: 0.5rem; margin-bottom: 0.85rem;">

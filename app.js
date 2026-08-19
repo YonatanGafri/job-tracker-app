@@ -2847,9 +2847,53 @@ function initCollapsibleSections() {
 }
 
 // ==========================================
+// PASSWORD VISIBILITY TOGGLES & PLACEHOLDER FOCUS
+// ==========================================
+function initPasswordToggles() {
+    document.querySelectorAll('.toggle-password-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const wrapper = btn.closest('.password-input-wrapper');
+            if (!wrapper) return;
+            const input = wrapper.querySelector('input');
+            const icon = btn.querySelector('ion-icon');
+            if (!input) return;
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                if (icon) icon.setAttribute('name', 'eye-off-outline');
+                btn.setAttribute('title', 'Hide password');
+            } else {
+                input.type = 'password';
+                if (icon) icon.setAttribute('name', 'eye-outline');
+                btn.setAttribute('title', 'Show password');
+            }
+        });
+    });
+
+    // Clear placeholder instantly upon focus across all inputs
+    document.querySelectorAll('input, textarea').forEach(inp => {
+        const origPlaceholder = inp.getAttribute('placeholder');
+        if (origPlaceholder) {
+            inp.addEventListener('focus', () => {
+                inp.dataset.originalPlaceholder = inp.getAttribute('placeholder') || origPlaceholder;
+                inp.setAttribute('placeholder', '');
+            });
+            inp.addEventListener('blur', () => {
+                if (inp.dataset.originalPlaceholder && !inp.value) {
+                    inp.setAttribute('placeholder', inp.dataset.originalPlaceholder);
+                }
+            });
+        }
+    });
+}
+
+// ==========================================
 // INITIALIZE APPLICATION & LANGUAGE
 // ==========================================
 initCollapsibleSections();
+initPasswordToggles();
 setLanguage(currentLang);
 checkAuth();
 
