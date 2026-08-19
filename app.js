@@ -70,6 +70,7 @@ const TRANSLATIONS = {
         step4_title: "4. Recruiter Call Readiness",
         step4_desc: "Recruiter called unexpectedly? Open the app in 2 seconds to know the product, role & key talking points!",
         load_demo_btn: "See How It Works (Load Demo)",
+        guest_explore_btn: "Explore Demo without Sign-in",
         guide_btn: "How It Works",
         demo_banner_title: "Demo Mode Active (Sample Data)",
         demo_banner_desc: "Exploring sample CVs, an active application, and an AI prep guide. Click the job below to view details, or clear demo data anytime.",
@@ -241,6 +242,7 @@ const TRANSLATIONS = {
         step4_title: "4. מעקב ושליטה בשיחת טלפון",
         step4_desc: "מקבלים טלפון מצוות הגיוס? פותחים מיד את המערכת ויודעים בדיוק: מה המוצר של החברה, מה התפקיד ומה להדגיש – בלי להתרוצץ ולחפש מודעות שנמחקו מהרשת!",
         load_demo_btn: "רוצה לראות איך זה עובד? (טען נתוני דוגמה)",
+        guest_explore_btn: "התנסה בדמו ללא הרשמה",
         guide_btn: "איך זה עובד?",
         demo_banner_title: "🔎 מצב הדגמה פעיל (נתוני דוגמה)",
         demo_banner_desc: "נטענו נתוני דוגמה: 2 מסמכים, מועמדות פעילה וסינתזת הכנה לראיון ב-AI. לחץ על המשרה בטבלה לצפייה, או נקה את הדמו בכל רגע.",
@@ -662,6 +664,9 @@ function setAuthMode(mode) {
         
         if (consentGroup) consentGroup.style.display = 'none';
         if (privacyConsent) privacyConsent.required = false;
+        if (openForgotPasswordBtn && openForgotPasswordBtn.parentElement) {
+            openForgotPasswordBtn.parentElement.style.display = 'flex';
+        }
     } else {
         tabSignUp.classList.add('active');
         tabLogin.classList.remove('active');
@@ -670,6 +675,9 @@ function setAuthMode(mode) {
         
         if (consentGroup) consentGroup.style.display = 'flex';
         if (privacyConsent) privacyConsent.required = true;
+        if (openForgotPasswordBtn && openForgotPasswordBtn.parentElement) {
+            openForgotPasswordBtn.parentElement.style.display = 'none';
+        }
     }
 }
 
