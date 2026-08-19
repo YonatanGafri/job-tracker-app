@@ -1651,12 +1651,6 @@ html[dir="rtl"] .stat-card .stat-icon {
     margin-left: 1rem;
 }
 
-html[dir="rtl"] .bsd-text {
-    text-align: left;
-    margin-right: 0;
-    margin-left: 0.25rem;
-}
-
 html[dir="rtl"] input[dir="ltr"],
 html[dir="rtl"] textarea[dir="ltr"] {
     direction: ltr;
