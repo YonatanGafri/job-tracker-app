@@ -1782,6 +1782,106 @@ if (reminderForm) {
     });
 }
 
+function getCompanyDomain(companyName, jdLink) {
+    if (!companyName) return '';
+    const clean = companyName.trim();
+    
+    // Check known tech companies map for exact high-quality domains
+    const knownDomains = {
+        'google': 'google.com',
+        'meta': 'meta.com',
+        'facebook': 'meta.com',
+        'apple': 'apple.com',
+        'microsoft': 'microsoft.com',
+        'amazon': 'amazon.com',
+        'aws': 'amazon.com',
+        'nvidia': 'nvidia.com',
+        'wix': 'wix.com',
+        'monday': 'monday.com',
+        'check point': 'checkpoint.com',
+        'checkpoint': 'checkpoint.com',
+        'cyberark': 'cyberark.com',
+        'vast data': 'vastdata.com',
+        'vast': 'vastdata.com',
+        'fiverr': 'fiverr.com',
+        'taboola': 'taboola.com',
+        'outbrain': 'outbrain.com',
+        'lemonade': 'lemonade.com',
+        'similarweb': 'similarweb.com',
+        'waze': 'waze.com',
+        'orca security': 'orcasecurity.io',
+        'orca': 'orcasecurity.io',
+        'wiz': 'wiz.io',
+        'intel': 'intel.com',
+        'cisco': 'cisco.com',
+        'ibm': 'ibm.com',
+        'sentinelone': 'sentinelone.com',
+        'appsflyer': 'appsflyer.com',
+        'playtika': 'playtika.com',
+        'qualcomm': 'qualcomm.com',
+        'applied materials': 'appliedmaterials.com',
+        'solaredge': 'solaredge.com',
+        'amdocs': 'amdocs.com',
+        'nice': 'nice.com',
+        'verint': 'verint.com',
+        'riskified': 'riskified.com',
+        'hippo': 'myhippo.com',
+        'ironsource': 'is.com',
+        'payoneer': 'payoneer.com',
+        'hibob': 'hibob.com',
+        'bob': 'hibob.com',
+        'gong': 'gong.io',
+        'snyk': 'snyk.io',
+        'bigid': 'bigid.com',
+        'claroty': 'claroty.com',
+        'armis': 'armis.com',
+        'walkme': 'walkme.com',
+        'redis': 'redis.io',
+        'jfrog': 'jfrog.com',
+        'spotify': 'spotify.com',
+        'netflix': 'netflix.com',
+        'uber': 'uber.com',
+        'airbnb': 'airbnb.com',
+        'salesforce': 'salesforce.com',
+        'oracle': 'oracle.com',
+        'stripe': 'stripe.com',
+        'github': 'github.com',
+        'gitlab': 'gitlab.com',
+        'cloudflare': 'cloudflare.com',
+        'snowflake': 'snowflake.com',
+        'databricks': 'databricks.com',
+        'openai': 'openai.com',
+        'anthropic': 'anthropic.com',
+        'palantir': 'palantir.com'
+    };
+
+    const lower = clean.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, ' ').replace(/\s+/g, ' ').trim();
+    if (knownDomains[lower]) {
+        return knownDomains[lower];
+    }
+    for (const key of Object.keys(knownDomains)) {
+        if (lower.includes(key)) {
+            return knownDomains[key];
+        }
+    }
+
+    if (jdLink && jdLink.startsWith('http')) {
+        try {
+            const urlObj = new URL(jdLink);
+            const host = urlObj.hostname.replace(/^www\./, '');
+            if (!host.includes('linkedin') && !host.includes('indeed') && !host.includes('glassdoor') && !host.includes('comeet') && !host.includes('greenhouse') && !host.includes('lever')) {
+                return host;
+            }
+        } catch (e) {}
+    }
+
+    if (clean.includes('.')) {
+        return clean.replace(/\s+/g, '').toLowerCase();
+    }
+
+    return clean.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() + '.com';
+}
+
 function renderJobs(filterText = '') {
     if (!jobsList) return;
     jobsList.innerHTML = '';
@@ -1836,6 +1936,9 @@ function renderJobs(filterText = '') {
             const colorIdx = (initial.charCodeAt(0) || 0) % colors.length;
             const avatarColor = colors[colorIdx];
 
+            const domain = getCompanyDomain(job.company, job.jdLink);
+            const logoUrl = domain ? `https://unavatar.io/${domain}?fallback=https%3A%2F%2Fwww.google.com%2Fs2%2Ffavicons%3Fdomain%3D${domain}%26sz%3D128` : '';
+
             const tr = document.createElement('tr');
             tr.className = 'job-row-card';
             
@@ -1844,7 +1947,18 @@ function renderJobs(filterText = '') {
             tr.innerHTML = `
                 <td class="cell-company">
                     <div class="company-cell">
-                        <div class="company-avatar" style="background: ${avatarColor.bg}; color: ${avatarColor.text};">${initial}</div>
+                        <div class="company-logo-wrap">
+                            ${logoUrl ? `
+                                <img class="company-logo-img" 
+                                     src="${logoUrl}" 
+                                     alt="${job.company}" 
+                                     loading="lazy" 
+                                     onerror="this.style.display='none'; const fb = this.parentElement.querySelector('.company-avatar'); if(fb) fb.style.display='flex';" />
+                                <div class="company-avatar" style="display: none; background: ${avatarColor.bg}; color: ${avatarColor.text};">${initial}</div>
+                            ` : `
+                                <div class="company-avatar" style="background: ${avatarColor.bg}; color: ${avatarColor.text};">${initial}</div>
+                            `}
+                        </div>
                         <span class="company-name" style="font-weight: 600; color: var(--text-primary);">${job.company}</span>
                     </div>
                 </td>

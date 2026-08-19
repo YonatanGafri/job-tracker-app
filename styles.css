@@ -682,9 +682,35 @@ tbody tr:hover {
     gap: 0.75rem;
 }
 
-.company-avatar {
+.company-logo-wrap {
     width: 32px;
     height: 32px;
+    border-radius: var(--radius-sm);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.company-logo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 2px;
+    background: #ffffff;
+    display: block;
+    border-radius: var(--radius-sm);
+    transition: opacity 0.2s ease;
+}
+
+.company-avatar {
+    width: 100%;
+    height: 100%;
     border-radius: var(--radius-sm);
     background: #e0e7ff;
     color: #3730a3;
