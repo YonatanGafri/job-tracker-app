@@ -246,10 +246,69 @@
                     </table>
                 </div>
                 
+                <div id="demoBanner" class="demo-banner glass-panel" style="display: none;">
+                    <div class="demo-banner-content">
+                        <div class="demo-banner-badge">
+                            <ion-icon name="sparkles"></ion-icon>
+                        </div>
+                        <div>
+                            <strong data-i18n="demo_banner_title">Demo Mode Active (Sample Data)</strong>
+                            <p data-i18n="demo_banner_desc">Exploring sample CVs, an active application, and an AI prep guide. Click the job below to view details, or clear demo data anytime.</p>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-secondary btn-sm clear-demo-btn" id="clearDemoBtn">
+                        <ion-icon name="trash-outline"></ion-icon> <span data-i18n="clear_demo_btn">Clear Demo Data</span>
+                    </button>
+                </div>
+
                 <div id="emptyState" class="empty-state">
-                    <ion-icon name="folder-open-outline"></ion-icon>
-                    <h3 data-i18n="empty_title">No applications yet</h3>
-                    <p data-i18n="empty_desc">Click 'New Application' to start tracking your applications and generating AI prep guides.</p>
+                    <div class="empty-state-header">
+                        <div class="empty-icon-wrapper">
+                            <ion-icon name="rocket-outline"></ion-icon>
+                        </div>
+                        <h3 data-i18n="empty_title">Welcome to Job Tracker!</h3>
+                        <p data-i18n="empty_desc">Track your job search lifecycle from application to offer with smart AI preparation.</p>
+                    </div>
+
+                    <!-- 4-Step Interactive Workflow Guide -->
+                    <div class="onboarding-guide">
+                        <h4 class="onboarding-guide-title" data-i18n="how_it_works_title">How It Works in 4 Simple Steps</h4>
+                        <div class="onboarding-steps-grid">
+                            <div class="step-card glass-panel">
+                                <div class="step-badge">1</div>
+                                <div class="step-icon"><ion-icon name="document-text-outline"></ion-icon></div>
+                                <h5 data-i18n="step1_title">1. Document Versions & CVs</h5>
+                                <p data-i18n="step1_desc">Store tailored CVs, transcripts & cover letters with fast Drive links and version changelogs.</p>
+                            </div>
+                            <div class="step-card glass-panel">
+                                <div class="step-badge">2</div>
+                                <div class="step-icon"><ion-icon name="sparkles-outline"></ion-icon></div>
+                                <h5 data-i18n="step2_title">2. Paste Job & AI Match</h5>
+                                <p data-i18n="step2_desc">Paste raw job descriptions to extract company details and compute an instant CV match score.</p>
+                            </div>
+                            <div class="step-card glass-panel">
+                                <div class="step-badge">3</div>
+                                <div class="step-icon"><ion-icon name="color-wand-outline"></ion-icon></div>
+                                <h5 data-i18n="step3_title">3. Targeted Interview Prep</h5>
+                                <p data-i18n="step3_desc">Receive MUST PREPARE technical topics, GOOD TO KNOW bonus points, and tailored pitch strategies.</p>
+                            </div>
+                            <div class="step-card glass-panel highlight-step">
+                                <div class="step-badge">4</div>
+                                <div class="step-icon"><ion-icon name="call-outline"></ion-icon></div>
+                                <h5 data-i18n="step4_title">4. Recruiter Call Readiness</h5>
+                                <p data-i18n="step4_desc">Recruiter called unexpectedly? Open the app in 2 seconds to know the product, role & key talking points!</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="empty-state-actions">
+                        <button type="button" id="loadDemoBtn" class="btn-primary load-demo-btn">
+                            <ion-icon name="sparkles"></ion-icon> <span data-i18n="load_demo_btn">See How It Works (Load Demo)</span>
+                        </button>
+                        <button type="button" id="emptyNewJobBtn" class="btn-secondary">
+                            <ion-icon name="add-outline"></ion-icon> <span data-i18n="new_application">New Application</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </main>

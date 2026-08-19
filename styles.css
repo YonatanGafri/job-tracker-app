@@ -768,27 +768,230 @@ tbody tr:hover {
     text-decoration: underline;
 }
 
-.empty-state {
-    padding: 3rem 1.5rem;
-    text-align: center;
-    color: var(--text-tertiary);
+/* ==========================================
+   DEMO BANNER & ONBOARDING GUIDE
+   ========================================== */
+.demo-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.9rem 1.25rem;
+    margin-bottom: 1.25rem;
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%);
+    border: 1px solid var(--primary-border);
+    border-radius: var(--radius-md);
+    animation: fadeIn 0.3s ease;
 }
 
-.empty-state ion-icon {
-    font-size: 2.5rem;
-    margin-bottom: 0.5rem;
-    color: var(--border-hover);
+.demo-banner-content {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+}
+
+.demo-banner-badge {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-full);
+    background: var(--primary-light);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.demo-banner-content strong {
+    display: block;
+    font-size: 0.92rem;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.demo-banner-content p {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.4;
+}
+
+.clear-demo-btn {
+    white-space: nowrap;
+    padding: 0.45rem 0.85rem;
+    font-size: 0.82rem;
+    color: #dc2626 !important;
+    border-color: #fecaca !important;
+    background: #fff !important;
+}
+
+.clear-demo-btn:hover {
+    background: #fef2f2 !important;
+    border-color: #fca5a5 !important;
+}
+
+.empty-state {
+    padding: 2.5rem 1.25rem 2rem;
+    text-align: center;
+}
+
+.empty-state-header {
+    max-width: 580px;
+    margin: 0 auto 2rem;
+}
+
+.empty-icon-wrapper {
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 0.75rem;
+    background: var(--primary-light);
+    border: 1px solid var(--primary-border);
+    color: var(--primary);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
 }
 
 .empty-state h3 {
-    font-size: 1.1rem;
-    color: var(--text-secondary);
-    font-weight: 600;
-    margin-bottom: 0.25rem;
+    font-size: 1.35rem;
+    color: var(--text-primary);
+    font-weight: 700;
+    margin-bottom: 0.4rem;
 }
 
 .empty-state p {
-    font-size: 0.85rem;
+    font-size: 0.92rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.onboarding-guide {
+    max-width: 960px;
+    margin: 0 auto 2rem;
+    text-align: start;
+}
+
+.onboarding-guide-title {
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.onboarding-steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 1rem;
+}
+
+.step-card {
+    position: relative;
+    padding: 1.25rem 1rem;
+    border-radius: var(--radius-md);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-xs);
+    transition: var(--transition-smooth);
+    display: flex;
+    flex-direction: column;
+}
+
+.step-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--border-hover);
+}
+
+.step-card.highlight-step {
+    border-color: #cbd5e1;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.06);
+}
+
+.step-badge {
+    position: absolute;
+    top: -10px;
+    right: 12px;
+    width: 24px;
+    height: 24px;
+    background: var(--primary);
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-xs);
+}
+
+html[dir="ltr"] .step-badge {
+    right: auto;
+    left: 12px;
+}
+
+.step-icon {
+    font-size: 1.4rem;
+    color: var(--primary);
+    margin-bottom: 0.6rem;
+    display: flex;
+    align-items: center;
+}
+
+.step-card.highlight-step .step-icon {
+    color: #10b981;
+}
+
+.step-card.highlight-step .step-badge {
+    background: #10b981;
+}
+
+.step-card h5 {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.4rem;
+    line-height: 1.35;
+}
+
+.step-card p {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.45;
+    margin: 0;
+    text-align: start;
+}
+
+.empty-state-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
+.load-demo-btn {
+    background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%) !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25) !important;
+    padding: 0.65rem 1.25rem !important;
+    font-weight: 600 !important;
+    font-size: 0.95rem !important;
+}
+
+.load-demo-btn:hover {
+    background: linear-gradient(135deg, #1d4ed8 0%, #4338ca 100%) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35) !important;
 }
 
 /* ==========================================
@@ -1649,12 +1852,6 @@ html[dir="rtl"] .stat-card {
 html[dir="rtl"] .stat-card .stat-icon {
     margin-right: 0;
     margin-left: 1rem;
-}
-
-html[dir="rtl"] .bsd-text {
-    text-align: left;
-    margin-right: 0;
-    margin-left: 0.25rem;
 }
 
 html[dir="rtl"] input[dir="ltr"],
