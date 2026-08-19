@@ -2303,10 +2303,15 @@ window.addEventListener('click', (e) => {
     if (e.target === viewModal) viewModal.classList.remove('active');
 });
 
-// Search and Filter Listeners
+// Search and Filter Listeners with 0ms Input Lag Debounce
+let searchInputRaf = null;
 if (searchInput) {
     searchInput.addEventListener('input', (e) => {
-        renderJobs(e.target.value);
+        const query = e.target.value;
+        if (searchInputRaf) cancelAnimationFrame(searchInputRaf);
+        searchInputRaf = requestAnimationFrame(() => {
+            renderJobs(query);
+        });
     });
 }
 
@@ -3023,11 +3028,30 @@ function initPasswordToggles() {
     });
 }
 
+// Modal Scroll Lock Synchronizer
+function initModalScrollLock() {
+    function syncModalScrollLock() {
+        const hasActiveModal = document.querySelector('.modal-overlay.active') !== null;
+        if (hasActiveModal) {
+            document.body.classList.add('modal-open');
+        } else {
+            document.body.classList.remove('modal-open');
+        }
+    }
+
+    const modalObserver = new MutationObserver(syncModalScrollLock);
+    document.querySelectorAll('.modal-overlay').forEach(modal => {
+        modalObserver.observe(modal, { attributes: true, attributeFilter: ['class'] });
+    });
+    syncModalScrollLock();
+}
+
 // ==========================================
 // INITIALIZE APPLICATION & LANGUAGE
 // ==========================================
 initCollapsibleSections();
 initPasswordToggles();
+initModalScrollLock();
 setLanguage(currentLang);
 checkAuth();
 

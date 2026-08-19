@@ -73,17 +73,31 @@
     -webkit-font-smoothing: antialiased;
 }
 
+html {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+}
+
 body {
     background-color: #f8fafc;
     color: var(--text-primary);
     min-height: 100vh;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
     line-height: 1.6;
     font-size: 0.9375rem;
     position: relative;
 }
 
+body.modal-open {
+    overflow: hidden !important;
+}
+
 /* ==========================================
-   AMBIENT SKY MESH BACKGROUND
+   HIGH-PERFORMANCE AMBIENT SKY BACKGROUND
    ========================================== */
 .ambient-mesh-bg {
     position: fixed;
@@ -91,20 +105,25 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
     overflow: hidden;
     z-index: -1;
     pointer-events: none;
-    background: radial-gradient(circle at 50% 0%, #e0f2fe 0%, #f0f7ff 45%, #f8fafc 100%);
+    background: radial-gradient(ellipse at 50% -10%, #e0f2fe 0%, #f0f7ff 50%, #f8fafc 100%);
+    contain: strict;
+    isolation: isolate;
+    transform: translateZ(0);
 }
 
 .mesh-orb {
     position: absolute;
     border-radius: 50%;
-    filter: blur(85px);
     will-change: transform;
     pointer-events: none;
+    transform: translateZ(0);
 }
 
 /* Top-right airy sky blue */
@@ -113,8 +132,7 @@ body {
     height: 650px;
     top: -150px;
     right: -80px;
-    background: radial-gradient(circle, rgba(56, 189, 248, 0.45) 0%, rgba(96, 165, 250, 0.3) 60%, rgba(255, 255, 255, 0) 100%);
-    opacity: 0.85;
+    background: radial-gradient(circle at center, rgba(56, 189, 248, 0.42) 0%, rgba(96, 165, 250, 0.22) 35%, rgba(96, 165, 250, 0.05) 60%, transparent 75%);
     animation: floatOrb1 26s ease-in-out infinite alternate;
 }
 
@@ -124,8 +142,7 @@ body {
     height: 680px;
     top: 15%;
     left: -180px;
-    background: radial-gradient(circle, rgba(6, 182, 212, 0.35) 0%, rgba(56, 189, 248, 0.25) 55%, rgba(255, 255, 255, 0) 100%);
-    opacity: 0.75;
+    background: radial-gradient(circle at center, rgba(6, 182, 212, 0.32) 0%, rgba(56, 189, 248, 0.18) 40%, rgba(56, 189, 248, 0.04) 60%, transparent 75%);
     animation: floatOrb2 30s ease-in-out infinite alternate;
 }
 
@@ -135,8 +152,7 @@ body {
     height: 580px;
     bottom: -120px;
     right: 18%;
-    background: radial-gradient(circle, rgba(129, 140, 248, 0.3) 0%, rgba(147, 197, 253, 0.22) 60%, rgba(255, 255, 255, 0) 100%);
-    opacity: 0.7;
+    background: radial-gradient(circle at center, rgba(129, 140, 248, 0.28) 0%, rgba(147, 197, 253, 0.15) 40%, rgba(147, 197, 253, 0.03) 60%, transparent 75%);
     animation: floatOrb3 24s ease-in-out infinite alternate;
 }
 
@@ -146,8 +162,7 @@ body {
     height: 520px;
     top: 40%;
     right: 35%;
-    background: radial-gradient(circle, rgba(186, 230, 253, 0.65) 0%, rgba(125, 211, 252, 0.35) 50%, rgba(255, 255, 255, 0) 100%);
-    opacity: 0.8;
+    background: radial-gradient(circle at center, rgba(186, 230, 253, 0.55) 0%, rgba(125, 211, 252, 0.25) 35%, rgba(125, 211, 252, 0.05) 60%, transparent 75%);
     animation: floatOrb4 22s ease-in-out infinite alternate;
 }
 
@@ -157,8 +172,7 @@ body {
     height: 460px;
     top: 8%;
     left: 30%;
-    background: radial-gradient(circle, rgba(37, 99, 235, 0.18) 0%, rgba(56, 189, 248, 0.12) 60%, rgba(255, 255, 255, 0) 100%);
-    opacity: 0.65;
+    background: radial-gradient(circle at center, rgba(37, 99, 235, 0.16) 0%, rgba(56, 189, 248, 0.08) 40%, transparent 70%);
     animation: floatOrb5 28s ease-in-out infinite alternate;
 }
 
@@ -214,12 +228,10 @@ body {
     margin-right: 0.25rem;
 }
 
-/* Glass Panel / Cards with Frosted Blur */
+/* Glass Panel / Cards with Frosted Depth */
 .glass-panel {
-    background: rgba(255, 255, 255, 0.84);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid rgba(226, 232, 240, 0.85);
     border-radius: var(--radius-lg);
     box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 1px 3px rgba(15, 23, 42, 0.03);
     transition: var(--transition-fast);
@@ -1204,16 +1216,22 @@ html[dir="ltr"] .step-badge {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(15, 23, 42, 0.5);
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.55);
     backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     z-index: 1000;
     opacity: 0;
     pointer-events: none;
-    transition: var(--transition-smooth);
-    padding: 1.5rem;
+    transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 2rem 1rem;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    box-sizing: border-box;
 }
 
 .modal-overlay.active {
@@ -1222,19 +1240,19 @@ html[dir="ltr"] .step-badge {
 }
 
 .modal-content {
-    background: rgba(255, 255, 255, 0.94);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.85);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-modal);
     width: 100%;
     max-width: 620px;
-    max-height: 90vh;
-    overflow-y: auto;
+    max-height: none;
+    margin: auto;
     padding: 1.75rem;
     transform: scale(0.96);
-    transition: var(--transition-smooth);
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    box-sizing: border-box;
 }
 
 .modal-overlay.active .modal-content {
@@ -1972,15 +1990,16 @@ textarea:focus::placeholder {
 
     /* Modals & Forms on Mobile */
     .modal-overlay {
-        padding: 0.75rem;
-        align-items: center;
+        padding: 1rem 0.6rem;
+        align-items: flex-start;
     }
 
     .modal-content {
         padding: 1.35rem 1.1rem;
-        max-height: 92vh;
+        max-height: none;
         width: 100%;
         max-width: 100%;
+        margin: auto;
         border-radius: var(--radius-lg);
     }
 
