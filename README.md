@@ -2,14 +2,14 @@
 
 <div align="center">
 
-[![Live App](https://img.shields.io/badge/Live_App-job--tracker--app.vercel.app-0070f3?style=for-the-badge&logo=vercel&logoColor=white)](https://job-tracker-app-delta-bay.vercel.app/)
+[![Live App](https://img.shields.io/badge/Live_App-trackyourapp.app-0070f3?style=for-the-badge&logo=vercel&logoColor=white)](https://trackyourapp.app/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 [![Supabase](https://img.shields.io/badge/Supabase-Database%20%26%20Auth-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com)
 [![Google Gemini](https://img.shields.io/badge/Google%20Gemini-AI%20Copilot-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)](https://ai.google.dev/)
 
 **A modern, privacy-first, cloud-synchronized web application designed for students and software engineers to manage job applications, match CVs against job descriptions, generate tailored interview prep guides, track documents, and set reminders.**
 
-[🌐 Live Demo](https://job-tracker-app-delta-bay.vercel.app/) • [✨ Features](#-features) • [🛠️ Tech Stack](#️-tech-stack) • [🚀 Quick Start](#-quick-start) • [💻 Self-Hosting & Database Setup](#-self-hosting--database-setup) • [🔒 Privacy & Security](#-privacy--security)
+[🌐 Live Demo](https://trackyourapp.app/) • [✨ Features](#-features) • [🛠️ Tech Stack](#️-tech-stack) • [🚀 Quick Start](#-quick-start) • [💻 Self-Hosting & Database Setup](#-self-hosting--database-setup) • [🔒 Privacy & Security](#-privacy--security)
 
 </div>
 
@@ -89,7 +89,7 @@ Searching for a job in tech requires tracking tens or hundreds of applications a
 ## 🚀 Quick Start
 
 ### Using the Live Cloud Web App
-1. Navigate to **[https://job-tracker-app-delta-bay.vercel.app/](https://job-tracker-app-delta-bay.vercel.app/)**
+1. Navigate to **[https://trackyourapp.app/](https://trackyourapp.app/)**
 2. Sign in with **Google One-Click** or create an account with **Email & Password**.
 3. (Optional) In the **Documents** section, upload your CV(s) in PDF format to enable AI match scoring.
 4. Click **New Application** and paste a job posting to generate your first AI preparation guide!
