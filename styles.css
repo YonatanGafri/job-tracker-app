@@ -920,6 +920,202 @@ tbody tr:hover {
 }
 .status-To::before, .status-Referral::before { background: var(--status-toapply-dot); }
 
+/* Interactive Status Badge */
+.status-badge-interactive {
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    font-family: inherit;
+    line-height: 1.4;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    user-select: none;
+    text-decoration: none;
+    gap: 0.35rem;
+}
+
+.status-badge-interactive:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    filter: brightness(0.96);
+}
+
+.status-badge-interactive:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.status-badge-interactive:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+.status-badge-chevron {
+    font-size: 0.72rem;
+    opacity: 0.6;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    flex-shrink: 0;
+}
+
+.status-badge-interactive:hover .status-badge-chevron {
+    opacity: 1;
+    transform: translateY(1px);
+}
+
+/* Quick Status Dropdown Menu */
+.quick-status-dropdown {
+    position: absolute;
+    z-index: 10000;
+    min-width: 210px;
+    max-width: 260px;
+    padding: 0.45rem;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    border-radius: var(--radius-md);
+    box-shadow: 0 10px 25px -4px rgba(15, 23, 42, 0.12), 0 4px 10px -2px rgba(15, 23, 42, 0.05);
+    animation: statusDropdownFadeIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes statusDropdownFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.quick-status-header {
+    padding: 0.35rem 0.6rem 0.45rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-tertiary);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.7);
+    margin-bottom: 0.35rem;
+}
+
+.quick-status-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.quick-status-option {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    width: 100%;
+    padding: 0.45rem 0.65rem;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    text-align: start;
+    transition: background 0.15s ease, color 0.15s ease;
+    position: relative;
+}
+
+.quick-status-option:hover {
+    background: #f1f5f9;
+}
+
+.quick-status-option.active {
+    background: #eff6ff;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.status-option-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.quick-status-option.status-To .status-option-dot,
+.quick-status-option.status-Referral .status-option-dot {
+    background: var(--status-toapply-dot);
+}
+
+.quick-status-option.status-Applied .status-option-dot {
+    background: var(--status-applied-dot);
+}
+
+.quick-status-option.status-Screening .status-option-dot {
+    background: var(--status-screening-dot);
+}
+
+.quick-status-option.status-Technical .status-option-dot,
+.quick-status-option.status-Interview .status-option-dot {
+    background: var(--status-interview-dot);
+}
+
+.quick-status-option.status-Offer .status-option-dot {
+    background: var(--status-offer-dot);
+}
+
+.quick-status-option.status-Rejected .status-option-dot,
+.quick-status-option.status-Not .status-option-dot {
+    background: var(--status-rejected-dot);
+}
+
+.status-option-label {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.status-option-check {
+    font-size: 1rem;
+    color: var(--primary);
+    margin-inline-start: 0.4rem;
+    flex-shrink: 0;
+}
+
+/* Quick Status Toast */
+.quick-status-toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(15, 23, 42, 0.92);
+    color: #ffffff;
+    padding: 0.65rem 1.25rem;
+    border-radius: var(--radius-full);
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 10px 25px -4px rgba(0, 0, 0, 0.25);
+    z-index: 100000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.quick-status-toast ion-icon {
+    font-size: 1.15rem;
+    color: #34d399;
+    flex-shrink: 0;
+}
+
+.quick-status-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
 /* Table Action Buttons */
 .actions-wrapper {
     display: flex;

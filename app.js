@@ -103,6 +103,9 @@ const TRANSLATIONS = {
         status_offer: "Offer",
         status_not_relevant: "Not Relevant",
         status_rejected: "Rejected",
+        click_to_change_status: "Click to change status",
+        status_updated_to: "Status updated to: ",
+        change_status_title: "Change Status",
         referral_label: "Referral / Contact Person",
         company_product_label: "Company & Product Domain",
         jd_summary_label: "Role Description (Your Words)",
@@ -280,6 +283,9 @@ const TRANSLATIONS = {
         status_offer: "הצעת שכר (Offer)",
         status_not_relevant: "לא רלוונטי",
         status_rejected: "נדחה",
+        click_to_change_status: "לחץ לשינוי סטטוס",
+        status_updated_to: "הסטטוס עודכן ל: ",
+        change_status_title: "עדכון סטטוס",
         referral_label: "איש קשר / מפנה (Referral)",
         company_product_label: "מוצר החברה ותחום פעילות",
         jd_summary_label: "תיאור התפקיד (במילים שלך)",
@@ -799,6 +805,11 @@ function handleAuthSuccess() {
     authForm.reset();
     userBadge.style.display = 'flex';
     userEmail.textContent = currentUser.email;
+    if (window.location.hash && (window.location.hash === '#' || window.location.hash.includes('access_token') || window.location.hash.includes('refresh_token'))) {
+        if (window.history && window.history.replaceState) {
+            window.history.replaceState(null, '', window.location.pathname + window.location.search);
+        }
+    }
     loadAllData();
 }
 
@@ -1234,6 +1245,10 @@ function handleHashRoute() {
         openAccessibilityModal();
     } else if (hash === '#feedback') {
         openFeedbackModal();
+    } else if (hash === '#') {
+        if (window.history && window.history.replaceState) {
+            window.history.replaceState(null, '', window.location.pathname + window.location.search);
+        }
     }
 }
 window.addEventListener('hashchange', handleHashRoute);
@@ -2001,7 +2016,16 @@ function renderJobs(filterText = '') {
                 <td class="cell-location" style="color: var(--text-secondary);">
                     <span class="location-text"><ion-icon name="location-outline" class="cell-meta-icon"></ion-icon>${job.location || '-'}</span>
                 </td>
-                <td class="cell-status"><span class="status-badge ${statusClass}">${getLocalizedStatus(job.status)}</span></td>
+                <td class="cell-status">
+                    <button type="button" 
+                            class="status-badge status-badge-interactive ${statusClass}" 
+                            onclick="openStatusDropdown(event, '${job.id}')" 
+                            title="${t('click_to_change_status', 'Click to change status')}"
+                            aria-label="${t('click_to_change_status', 'Click to change status')}">
+                        <span class="status-badge-text">${getLocalizedStatus(job.status)}</span>
+                        <ion-icon name="chevron-down-outline" class="status-badge-chevron"></ion-icon>
+                    </button>
+                </td>
                 <td class="cell-date" style="color: var(--text-secondary); font-size: 0.82rem; white-space: nowrap;">
                     <span class="date-text"><ion-icon name="calendar-outline" class="cell-meta-icon"></ion-icon>${formatDate(job.date)}</span>
                 </td>
@@ -2023,19 +2047,190 @@ function renderJobs(filterText = '') {
     }
 }
 
+const STATUS_CONFIG = [
+    { value: 'To Apply', key: 'status_to_apply', defaultText: 'To Apply', cls: 'status-To' },
+    { value: 'Applied', key: 'status_applied', defaultText: 'Applied', cls: 'status-Applied' },
+    { value: 'Referral Submitted', key: 'status_referral_submitted', defaultText: 'Referral Submitted', cls: 'status-Referral' },
+    { value: 'Screening', key: 'status_screening', defaultText: 'Screening (Phone/HR)', cls: 'status-Screening' },
+    { value: 'Technical Interview', key: 'status_tech_interview', defaultText: 'Technical Interview', cls: 'status-Technical' },
+    { value: 'Offer', key: 'status_offer', defaultText: 'Offer', cls: 'status-Offer' },
+    { value: 'Not Relevant', key: 'status_not_relevant', defaultText: 'Not Relevant', cls: 'status-Not' },
+    { value: 'Rejected', key: 'status_rejected', defaultText: 'Rejected', cls: 'status-Rejected' }
+];
+
 function getLocalizedStatus(status) {
     if (!status) return '';
-    const map = {
-        'To Apply': t('status_to_apply', 'To Apply'),
-        'Applied': t('status_applied', 'Applied'),
-        'Referral Submitted': t('status_referral_submitted', 'Referral Submitted'),
-        'Screening': t('status_screening', 'Screening (Phone/HR)'),
-        'Technical Interview': t('status_tech_interview', 'Technical Interview'),
-        'Offer': t('status_offer', 'Offer'),
-        'Not Relevant': t('status_not_relevant', 'Not Relevant'),
-        'Rejected': t('status_rejected', 'Rejected')
-    };
-    return map[status] || status;
+    const item = STATUS_CONFIG.find(s => s.value === status);
+    if (item) {
+        return t(item.key, item.defaultText);
+    }
+    return status;
+}
+
+window.openStatusDropdown = function(event, jobId) {
+    if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
+    
+    const targetBtn = event ? (event.currentTarget || event.target.closest('.status-badge-interactive')) : null;
+    if (!targetBtn) return;
+    
+    const job = jobs.find(j => j.id === jobId);
+    if (!job) return;
+
+    let dropdown = document.getElementById('quickStatusDropdown');
+    if (!dropdown) {
+        dropdown = document.createElement('div');
+        dropdown.id = 'quickStatusDropdown';
+        dropdown.className = 'quick-status-dropdown';
+        document.body.appendChild(dropdown);
+
+        // Close when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!dropdown.contains(e.target) && !e.target.closest('.status-badge-interactive')) {
+                closeStatusDropdown();
+            }
+        });
+
+        // Close on window resize or scroll
+        window.addEventListener('resize', closeStatusDropdown);
+        window.addEventListener('scroll', closeStatusDropdown, true);
+
+        // Close on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeStatusDropdown();
+            }
+        });
+    }
+
+    // Toggle close if already open for this job
+    if (dropdown.style.display === 'block' && dropdown.dataset.currentJobId === jobId) {
+        closeStatusDropdown();
+        return;
+    }
+
+    dropdown.dataset.currentJobId = jobId;
+
+    dropdown.innerHTML = `
+        <div class="quick-status-header">
+            <span>${t('change_status_title', 'Change Status')}</span>
+        </div>
+        <div class="quick-status-list">
+            ${STATUS_CONFIG.map(opt => {
+                const isSelected = job.status === opt.value;
+                const label = t(opt.key, opt.defaultText);
+                return `
+                    <button type="button" 
+                            class="quick-status-option ${opt.cls} ${isSelected ? 'active' : ''}" 
+                            onclick="quickUpdateJobStatus('${jobId}', '${opt.value}', event)">
+                        <span class="status-option-dot"></span>
+                        <span class="status-option-label">${label}</span>
+                        ${isSelected ? '<ion-icon name="checkmark-outline" class="status-option-check"></ion-icon>' : ''}
+                    </button>
+                `;
+            }).join('')}
+        </div>
+    `;
+
+    // Make visible but hidden to measure exact dimensions
+    dropdown.style.display = 'block';
+    dropdown.style.visibility = 'hidden';
+
+    // Calculate positioning
+    const rect = targetBtn.getBoundingClientRect();
+    const dropW = dropdown.offsetWidth || 210;
+    const dropH = dropdown.offsetHeight || 290;
+    const isRtl = document.documentElement.getAttribute('dir') === 'rtl';
+    const margin = 6;
+    
+    let top = rect.bottom + window.scrollY + margin;
+
+    // Check if dropdown goes below viewport, if so and there is space above, open above
+    if (rect.bottom + dropH + margin > window.innerHeight && rect.top - dropH - margin > 0) {
+        top = rect.top + window.scrollY - dropH - margin;
+    }
+
+    let left;
+    if (isRtl) {
+        // In RTL, align right edge of dropdown with right edge of badge
+        left = rect.right + window.scrollX - dropW;
+        if (left < 10) left = 10;
+        if (left + dropW > document.documentElement.clientWidth - 10) {
+            left = document.documentElement.clientWidth - dropW - 10;
+        }
+    } else {
+        // In LTR, align left edge of dropdown with left edge of badge
+        left = rect.left + window.scrollX;
+        if (left + dropW > document.documentElement.clientWidth - 10) {
+            left = document.documentElement.clientWidth - dropW - 10;
+        }
+        if (left < 10) left = 10;
+    }
+
+    dropdown.style.top = `${Math.round(top)}px`;
+    dropdown.style.left = `${Math.round(left)}px`;
+    dropdown.style.visibility = 'visible';
+};
+
+window.closeStatusDropdown = function() {
+    const dropdown = document.getElementById('quickStatusDropdown');
+    if (dropdown) {
+        dropdown.style.display = 'none';
+        delete dropdown.dataset.currentJobId;
+    }
+};
+
+window.quickUpdateJobStatus = async function(jobId, newStatus, event) {
+    if (event) {
+        event.stopPropagation();
+    }
+    closeStatusDropdown();
+
+    const job = jobs.find(j => j.id === jobId);
+    if (!job || job.status === newStatus) return;
+
+    job.status = newStatus;
+
+    // Ensure status is active in filters so it doesn't get hidden
+    if (typeof activeStatusFilters !== 'undefined') {
+        activeStatusFilters.add(newStatus);
+    }
+
+    if (typeof renderStatusFilters === 'function') renderStatusFilters();
+    if (typeof renderJobs === 'function') renderJobs(searchInput ? searchInput.value : '');
+    if (typeof updateStats === 'function') updateStats();
+
+    showStatusToast(t('status_updated_to', 'Status updated to: ') + getLocalizedStatus(newStatus));
+
+    // Save to Supabase
+    if (supabaseClient && currentUser && !isDemoMode) {
+        try {
+            const { error } = await supabaseClient.from('jobs').update({ status: newStatus }).eq('id', jobId);
+            if (error) {
+                console.error('Failed to update status in Supabase:', error);
+            }
+        } catch (err) {
+            console.error('Error updating status in Supabase:', err);
+        }
+    }
+};
+
+function showStatusToast(msg) {
+    let toast = document.getElementById('quickStatusToast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'quickStatusToast';
+        toast.className = 'quick-status-toast';
+        document.body.appendChild(toast);
+    }
+    toast.innerHTML = `<ion-icon name="checkmark-circle-outline"></ion-icon> <span>${msg}</span>`;
+    toast.classList.add('show');
+    clearTimeout(toast._timeout);
+    toast._timeout = setTimeout(() => {
+        toast.classList.remove('show');
+    }, 2500);
 }
 
 function updateStats() {
