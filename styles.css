@@ -272,17 +272,16 @@ body:has(.modal-overlay.active) .mesh-orb {
 }
 
 .app-logo-badge {
-    width: 34px;
-    height: 34px;
-    border-radius: 9px;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.22);
+    width: 36px;
+    height: 36px;
     flex-shrink: 0;
-    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), filter 0.2s ease;
+    filter: drop-shadow(0 2px 4px rgba(37, 99, 235, 0.25));
 }
 
 .app-logo-badge:hover {
-    transform: scale(1.08) translateY(-1px);
-    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+    transform: scale(1.1) translateY(-1px);
+    filter: drop-shadow(0 4px 8px rgba(37, 99, 235, 0.35));
 }
 
 .header-content p {
