@@ -748,12 +748,14 @@ if (window.location.hash.includes('id_token=')) {
         
         setTimeout(async () => {
             try {
-                const { error } = await supabaseClient.auth.signInWithIdToken({
+                const { data, error } = await supabaseClient.auth.signInWithIdToken({
                     provider: 'google',
                     token: idToken,
                     nonce: rawNonce
                 });
                 if (error) throw error;
+                if (data && data.user) currentUser = data.user;
+                handleAuthSuccess();
             } catch (err) {
                 authError.textContent = err.message || 'Google sign-in error.';
                 authError.style.display = 'block';
