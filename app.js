@@ -13,7 +13,7 @@ const supabaseClient = (typeof window !== 'undefined' && window.supabase && SUPA
 // ==========================================
 const TRANSLATIONS = {
     en: {
-        app_title: "Job Tracker",
+        app_title: "Track Your APP",
         app_tagline: "Application pipeline & interview preparation hub.",
         logout: "Log Out",
         new_application: "New Application",
@@ -58,7 +58,7 @@ const TRANSLATIONS = {
         col_status: "Status",
         col_date: "Date Applied",
         col_actions: "Actions",
-        empty_title: "Welcome to Job Tracker!",
+        empty_title: "Welcome to Track Your APP!",
         empty_desc: "Manage your applications, tailored CVs, and AI interview prep guides all in one secure workspace.",
         how_it_works_title: "How It Works in 4 Simple Steps",
         step1_title: "1. Document Versions & CVs",
@@ -193,7 +193,7 @@ const TRANSLATIONS = {
         got_it_btn: "Got It"
     },
     he: {
-        app_title: "ניהול משרות וקורות חיים",
+        app_title: "Track Your APP",
         app_tagline: "מערכת מעקב מועמדויות, קורות חיים והכנה לראיונות מבוססת AI",
         logout: "התנתק",
         new_application: "הגשת מועמדות חדשה",
@@ -238,7 +238,7 @@ const TRANSLATIONS = {
         col_status: "סטטוס",
         col_date: "תאריך הגשה",
         col_actions: "פעולות",
-        empty_title: "ברוכים הבאים ל-Job Tracker!",
+        empty_title: "ברוכים הבאים ל-Track Your APP!",
         empty_desc: "נהל את כל המועמדויות, גרסאות קורות החיים וההכנה לראיונות ב-AI במקום אחד מסודר ומאובטח.",
         how_it_works_title: "איך זה עובד ב-4 שלבים פשוטים?",
         step1_title: "1. ניהול מסמכים וגרסאות קו\"ח",
@@ -1239,7 +1239,7 @@ if (feedbackForm) {
                     "Accept": "application/json"
                 },
                 body: JSON.stringify({
-                    _subject: `Job Tracker Cloud Feedback: [${category}] from ${userEmailAddr}`,
+                    _subject: `Track Your APP Feedback: [${category}] from ${userEmailAddr}`,
                     user_email: userEmailAddr,
                     user_id: currentUser ? currentUser.id : 'Guest / Not Logged In',
                     feedback_category: category,

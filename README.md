@@ -13,11 +13,13 @@
 
 </div>
 
+Welcome to the **Track Your APP** repository!
+
 ---
 
 ## 🌟 Overview
 
-Searching for a job in tech requires tracking tens or hundreds of applications across different CV versions, interview stages, and technical requirements. **Job Tracker Cloud** is an all-in-one productivity hub built to streamline the entire job search lifecycle:
+Searching for a job in tech requires tracking tens or hundreds of applications across different CV versions, interview stages, and technical requirements. **Track Your APP** is an all-in-one productivity hub built to streamline the entire job search lifecycle:
 
 1. **Track Applications:** Monitor your job pipeline across custom stages from "To Apply" to "Offer".
 2. **AI Copilot & Match Scoring:** Paste raw Job Descriptions and match them against your uploaded CV to get a match score, role summary, and prioritized technical interview prep synthesis.
