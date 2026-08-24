@@ -717,24 +717,41 @@ if (tabLogin) tabLogin.addEventListener('click', () => setAuthMode('login'));
 if (tabSignUp) tabSignUp.addEventListener('click', () => setAuthMode('signup'));
 
 const googleAuthBtn = document.getElementById('googleAuthBtn');
-if (googleAuthBtn) {
-    googleAuthBtn.addEventListener('click', async () => {
-        authError.style.display = 'none';
-        authSuccess.style.display = 'none';
-        try {
-            if (!supabaseClient) throw new Error('Supabase client not initialized.');
-            const { error } = await supabaseClient.auth.signInWithOAuth({
-                provider: 'google',
-                options: {
-                    redirectTo: window.location.origin
-                }
-            });
-            if (error) throw error;
-        } catch (err) {
-            authError.textContent = err.message || 'Google sign-in error. Make sure Google provider is enabled in your Supabase dashboard.';
-            authError.style.display = 'block';
-        }
+const customGoogleBtn = document.getElementById('customGoogleBtn');
+if (customGoogleBtn) {
+    customGoogleBtn.addEventListener('click', () => {
+        const clientId = "1088998151539-3n088kqpud9mbnd8va9g4nd5eafi48kr.apps.googleusercontent.com";
+        const redirectUri = window.location.origin;
+        // Use standard Google OAuth 2.0 Implicit flow to get an ID Token directly
+        const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=id_token&scope=email profile openid&nonce=jobtracker123`;
+        window.location.href = url;
     });
+}
+
+// Check for Google ID Token in URL hash (returned from the manual OAuth flow above)
+if (window.location.hash.includes('id_token=')) {
+    const params = new URLSearchParams(window.location.hash.substring(1));
+    const idToken = params.get('id_token');
+    if (idToken) {
+        window.history.replaceState(null, null, window.location.pathname); // Clean the URL
+        if (typeof showGlobalLoader === 'function') showGlobalLoader();
+        
+        // Wait for supabaseClient to initialize, then sign in
+        setTimeout(async () => {
+            try {
+                const { error } = await supabaseClient.auth.signInWithIdToken({
+                    provider: 'google',
+                    token: idToken,
+                });
+                if (error) throw error;
+                // onAuthStateChange will take over
+            } catch (err) {
+                authError.textContent = err.message || 'Google sign-in error.';
+                authError.style.display = 'block';
+                if (typeof hideGlobalLoader === 'function') hideGlobalLoader();
+            }
+        }, 500);
+    }
 }
 
 if (authForm) {
@@ -817,6 +834,7 @@ function handleAuthSuccess() {
 async function checkAuth() {
     if (!supabaseClient) {
         console.warn('Supabase not configured, using offline mock.');
+        if (typeof hideGlobalLoader === 'function') hideGlobalLoader();
         return;
     }
 
@@ -827,6 +845,7 @@ async function checkAuth() {
             handleAuthSuccess();
         } else {
             authModal.classList.add('active');
+            if (typeof hideGlobalLoader === 'function') hideGlobalLoader();
         }
 
         supabaseClient.auth.onAuthStateChange((event, session) => {
@@ -847,11 +866,13 @@ async function checkAuth() {
                 currentUser = null;
                 userBadge.style.display = 'none';
                 authModal.classList.add('active');
+                if (typeof hideGlobalLoader === 'function') hideGlobalLoader();
             }
         });
     } catch (err) {
         console.error('Session check failed:', err);
         authModal.classList.add('active');
+        if (typeof hideGlobalLoader === 'function') hideGlobalLoader();
     }
 }
 
@@ -901,6 +922,18 @@ async function loadAllData() {
 
     } catch (err) {
         console.error('Failed to load data:', err);
+    } finally {
+        hideGlobalLoader();
+    }
+}
+
+function hideGlobalLoader() {
+    const loader = document.getElementById('globalLoader');
+    if (loader && !loader.classList.contains('hidden')) {
+        loader.classList.add('hidden');
+        setTimeout(() => {
+            if (loader) loader.style.display = 'none';
+        }, 400);
     }
 }
 
