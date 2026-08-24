@@ -839,17 +839,19 @@ if (logoutBtn) {
     });
 }
 
-function handleAuthSuccess() {
-    authModal.classList.remove('active');
+async function handleAuthSuccess() {
     authForm.reset();
     userBadge.style.display = 'flex';
-    userEmail.textContent = currentUser.email;
+    if (currentUser && currentUser.email) {
+        userEmail.textContent = currentUser.email;
+    }
     if (window.location.hash && (window.location.hash === '#' || window.location.hash.includes('access_token') || window.location.hash.includes('refresh_token'))) {
         if (window.history && window.history.replaceState) {
             window.history.replaceState(null, '', window.location.pathname + window.location.search);
         }
     }
-    loadAllData();
+    await loadAllData();
+    authModal.classList.remove('active');
 }
 
 // Check Session on page load
@@ -873,12 +875,10 @@ async function checkAuth() {
             }
         }
 
-        supabaseClient.auth.onAuthStateChange((event, session) => {
+        supabaseClient.auth.onAuthStateChange(async (event, session) => {
             if (session && session.user) {
                 currentUser = session.user;
-                userBadge.style.display = 'flex';
-                userEmail.textContent = currentUser.email;
-                authModal.classList.remove('active');
+                await handleAuthSuccess();
                 
                 // Personalize CV placeholder if full name is available
                 const fullName = currentUser.user_metadata?.full_name;
