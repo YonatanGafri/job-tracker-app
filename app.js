@@ -742,6 +742,7 @@ if (window.location.hash.includes('id_token=')) {
     const idToken = params.get('id_token');
     const rawNonce = localStorage.getItem('supabase_auth_nonce');
     if (idToken && rawNonce) {
+        window.isProcessingIdToken = true;
         localStorage.removeItem('supabase_auth_nonce');
         window.history.replaceState(null, null, window.location.pathname);
         if (typeof showGlobalLoader === 'function') showGlobalLoader();
@@ -760,6 +761,12 @@ if (window.location.hash.includes('id_token=')) {
                 authError.textContent = err.message || 'Google sign-in error.';
                 authError.style.display = 'block';
                 if (typeof hideGlobalLoader === 'function') hideGlobalLoader();
+                
+                // Show modal on error since login failed
+                const authModal = document.getElementById('authModal');
+                if (authModal) authModal.classList.add('active');
+            } finally {
+                window.isProcessingIdToken = false;
             }
         }, 500);
     } else if (idToken) {
@@ -859,8 +866,11 @@ async function checkAuth() {
             currentUser = session.user;
             handleAuthSuccess();
         } else {
-            authModal.classList.add('active');
-            if (typeof hideGlobalLoader === 'function') hideGlobalLoader();
+            // Only show auth modal if we are NOT currently processing a Google ID token from the URL
+            if (!window.isProcessingIdToken) {
+                authModal.classList.add('active');
+                if (typeof hideGlobalLoader === 'function') hideGlobalLoader();
+            }
         }
 
         supabaseClient.auth.onAuthStateChange((event, session) => {
@@ -880,8 +890,10 @@ async function checkAuth() {
             } else {
                 currentUser = null;
                 userBadge.style.display = 'none';
-                authModal.classList.add('active');
-                if (typeof hideGlobalLoader === 'function') hideGlobalLoader();
+                if (!window.isProcessingIdToken) {
+                    authModal.classList.add('active');
+                    if (typeof hideGlobalLoader === 'function') hideGlobalLoader();
+                }
             }
         });
     } catch (err) {
