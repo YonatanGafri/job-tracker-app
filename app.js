@@ -742,6 +742,7 @@ if (window.location.hash.includes('id_token=')) {
                 const { error } = await supabaseClient.auth.signInWithIdToken({
                     provider: 'google',
                     token: idToken,
+                    nonce: 'jobtracker123'
                 });
                 if (error) throw error;
                 // onAuthStateChange will take over
