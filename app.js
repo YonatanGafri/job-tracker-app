@@ -719,39 +719,51 @@ if (tabSignUp) tabSignUp.addEventListener('click', () => setAuthMode('signup'));
 const googleAuthBtn = document.getElementById('googleAuthBtn');
 const customGoogleBtn = document.getElementById('customGoogleBtn');
 if (customGoogleBtn) {
-    customGoogleBtn.addEventListener('click', () => {
+    customGoogleBtn.addEventListener('click', async () => {
+        // Generate a random nonce and hash it for Supabase
+        const rawNonce = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        localStorage.setItem('supabase_auth_nonce', rawNonce);
+        
+        const encoder = new TextEncoder();
+        const encodedNonce = encoder.encode(rawNonce);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', encodedNonce);
+        const hashedNonce = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+
         const clientId = "1088998151539-3n088kqpud9mbnd8va9g4nd5eafi48kr.apps.googleusercontent.com";
         const redirectUri = window.location.origin;
-        // Use standard Google OAuth 2.0 Implicit flow to get an ID Token directly
-        const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=id_token&scope=email profile openid&nonce=jobtracker123`;
+        const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=id_token&scope=email profile openid&nonce=${hashedNonce}`;
         window.location.href = url;
     });
 }
 
-// Check for Google ID Token in URL hash (returned from the manual OAuth flow above)
+// Check for Google ID Token in URL hash
 if (window.location.hash.includes('id_token=')) {
     const params = new URLSearchParams(window.location.hash.substring(1));
     const idToken = params.get('id_token');
-    if (idToken) {
-        window.history.replaceState(null, null, window.location.pathname); // Clean the URL
+    const rawNonce = localStorage.getItem('supabase_auth_nonce');
+    if (idToken && rawNonce) {
+        localStorage.removeItem('supabase_auth_nonce');
+        window.history.replaceState(null, null, window.location.pathname);
         if (typeof showGlobalLoader === 'function') showGlobalLoader();
         
-        // Wait for supabaseClient to initialize, then sign in
         setTimeout(async () => {
             try {
                 const { error } = await supabaseClient.auth.signInWithIdToken({
                     provider: 'google',
                     token: idToken,
-                    nonce: 'jobtracker123'
+                    nonce: rawNonce
                 });
                 if (error) throw error;
-                // onAuthStateChange will take over
             } catch (err) {
                 authError.textContent = err.message || 'Google sign-in error.';
                 authError.style.display = 'block';
                 if (typeof hideGlobalLoader === 'function') hideGlobalLoader();
             }
         }, 500);
+    } else if (idToken) {
+        // Fallback if nonce was lost
+        authError.textContent = "Security session expired. Please try logging in again.";
+        authError.style.display = 'block';
     }
 }
 
