@@ -2006,6 +2006,19 @@ function renderJobs(filterText = '') {
             if (currentSortColumn === 'date') {
                 valA = new Date(valA).getTime() || 0;
                 valB = new Date(valB).getTime() || 0;
+            } else if (currentSortColumn === 'status') {
+                const statusRank = {
+                    'Offer': 1,
+                    'Technical Interview': 2,
+                    'Screening': 3,
+                    'Referral Submitted': 4,
+                    'Applied': 5,
+                    'To Apply': 6,
+                    'Rejected': 7,
+                    'Not Relevant': 8
+                };
+                valA = statusRank[valA] || 99;
+                valB = statusRank[valB] || 99;
             } else {
                 valA = valA.toString().toLowerCase();
                 valB = valB.toString().toLowerCase();
